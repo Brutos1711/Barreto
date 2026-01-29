@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>BARRETO v5</title>
+<style>
+body{margin:0;font-family:Arial;background:#f2f2f2}
+#menu{position:fixed;left:0;top:0;width:220px;height:100%;background:#222;color:#fff;padding:15px}
+#menu h2{text-align:center}
+#menu button{width:100%;margin:5px 0;padding:10px;border:none;border-radius:5px;background:#444;color:#fff}
+#menu button:hover{background:#666}
+#conteudo{margin-left:240px;padding:20px}
+.card{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px}
+input,select,button{padding:8px;margin:5px;width:100%}
+table{width:100%;border-collapse:collapse}
+th,td{border-bottom:1px solid #ddd;padding:8px;text-align:left}
+.btnDel{background:#e53935;color:#fff;border:none;border-radius:5px}
+.btnCan{background:#ff9800;color:#fff;border:none;border-radius:5px}
+.btnEdit{background:#2196f3;color:#fff;border:none;border-radius:5px}
+.flex{display:flex;gap:8px;flex-wrap:wrap}
+.flex > *{flex:1}
+.small{width:auto}
+</style>
+</head>
+<body>
+
+<div id="menu">
+<h2>BARRETO</h2>
+<button onclick="mostrar('dashboard')">Dashboard</button>
+<button onclick="mostrar('clientes')">Clientes</button>
+<button onclick="mostrar('servicos')">Serviços</button>
+<button onclick="mostrar('financeiro')">Financeiro</button>
+<button onclick="mostrar('backup')">Backup</button>
+</div>
+
+<div id="conteudo">
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="tela">
+<div class="card">
+<h3>Dashboard</h3>
+<p id="dash"></p>
+</div>
+</div>
+
+<!-- CLIENTES -->
+<div id="clientes" class="tela" style="display:none">
+<div class="card">
+<h3>Novo / Editar Cliente</h3>
+<input type="hidden" id="cId">
+<input id="cNome" placeholder="Nome completo">
+<input id="cTel" placeholder="Telefone" oninput="formatarTelefone(this)">
+<input id="cCep" placeholder="CEP" onblur="buscarCEP()">
+<input id="cRua" placeholder="Rua">
+<input id="cBairro" placeholder="Bairro">
+<input id="cCidade" placeholder="Cidade">
+<button onclick="salvarCliente()">Salvar</button>
+</div>
+
+<div class="card">
+<h3>Buscar cliente</h3>
+<input id="buscaCliente" placeholder="Nome, telefone ou cidade..." oninput="atualizar()">
+</div>
+
+<div class="card">
+<h3>Lista de Clientes</h3>
+<ul id="listaClientes"></ul>
+</div>
+</div>
+
+<!-- SERVIÇOS -->
+<div id="servicos" class="tela" style="display:none">
+<div class="card">
+<h3>Novo Serviço</h3>
+<select id="sCliente"></select>
+<input id="sDesc" placeholder="Descrição">
+<input id="sValor" type="number" placeholder="Valor total">
+<input id="sData" type="date">
+<button onclick="salvarServico()">Salvar Serviço</button>
+</div>
+
+<div class="card">
+<h3>Busca e Filtros</h3>
+<div class="flex">
+<input id="buscaServico" placeholder="Cliente ou serviço..." oninput="atualizar()">
+<select id="filtroStatus" onchange="atualizar()">
+<option value="todos">Todos</option>
+<option value="Em aberto">Em aberto</option>
+<option value="Parcial">Parcial</option>
+<option value="Pago">Pago</option>
+<option value="Cancelado">Cancelado</option>
+</select>
+<input type="date" id="fIni" onchange="atualizar()">
+<input type="date" id="fFim" onchange="atualizar()">
+<button class="small" onclick="limparFiltros()">Limpar</button>
+</div>
+</div>
+
+<div class="card">
+<h3>Serviços</h3>
+<table id="tabelaServicos"></table>
+</div>
+</div>
+
+<!-- FINANCEIRO -->
+<div id="financeiro" class="tela" style="display:none">
+<div class="card">
+<h3>Financeiro</h3>
+<table id="tabelaFinanceiro"></table>
+</div>
+</div>
+
+<!-- BACKUP -->
+<div id="backup" class="tela" style="display:none">
+<div class="card">
+<h3>Backup do Sistema</h3>
+<button onclick="exportarBackup()">📤 Exportar dados</button>
+<br><br>
+<input type="file" id="fileBackup">
+<button onclick="importarBackup()">📥 Importar dados</button>
+<p id="msgBackup"></p>
+</div>
+</div>
+
+</div>
+
+<script>
+let clientes = JSON.parse(localStorage.getItem("clientes_barreto"))||[];
+let servicos = JSON.parse(localStorage.getItem("servicos_barreto"))||[];
+let financeiro = JSON.parse(localStorage.getItem("financeiro_barreto"))||{entradas:[]};
+
+function salvarTudo(){
+ localStorage.setItem("clientes_barreto",JSON.stringify(clientes));
+ localStorage.setItem("servicos_barreto",JSON.stringify(servicos));
+ localStorage.setItem("financeiro_barreto",JSON.stringify(financeiro));
+}
+
+function mostrar(id){
+ document.querySelectorAll(".tela").forEach(t=>t.style.display="none");
+ document.getElementById(id).style.display="block";
+ atualizar();
+}
+
+// CLIENTES
+function formatarTelefone(c){
+ let v=c.value.replace(/\D/g,'');
+ if(v.length>=2) c.value=`(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7,11)}`;
+}
+
+function buscarCEP(){
+ let cep=cCep.value.replace(/\D/g,'');
+ if(cep.length!=8) return;
+ fetch(`https://viacep.com.br/ws/${cep}/json/`)
+ .then(r=>r.json())
+ .then(d=>{
+  if(!d.erro){
+   cRua.value=d.logradouro;
+   cBairro.value=d.bairro;
+   cCidade.value=d.localidade;
+  }
+ });
+}
+
+function salvarCliente(){
+ if(cId.value){
+  let c=clientes.find(x=>x.id==cId.value);
+  Object.assign(c,{
+   nome:cNome.value,tel:cTel.value,
+   cep:cCep.value,rua:cRua.value,
+   bairro:cBairro.value,cidade:cCidade.value
+  });
+ } else {
+  clientes.push({
+   id:Date.now(),
+   nome:cNome.value,tel:cTel.value,
+   cep:cCep.value,rua:cRua.value,
+   bairro:cBairro.value,cidade:cCidade.value
+  });
+ }
+ cId.value=""; cNome.value=cTel.value=cCep.value=cRua.value=cBairro.value=cCidade.value="";
+ salvarTudo(); atualizar();
+}
+
+function editarCliente(id){
+ let c=clientes.find(x=>x.id==id);
+ cId.value=c.id; cNome.value=c.nome; cTel.value=c.tel;
+ cCep.value=c.cep; cRua.value=c.rua;
+ cBairro.value=c.bairro; cCidade.value=c.cidade;
+}
+
+function excluirCliente(id){
+ if(servicos.some(s=>s.clienteId==id)){
+  alert("Cliente possui serviços.");
+  return;
+ }
+ if(confirm("Excluir cliente?")){
+  clientes=clientes.filter(c=>c.id!=id);
+  salvarTudo(); atualizar();
+ }
+}
+
+// SERVIÇOS
+function salvarServico(){
+ servicos.push({
+  id:Date.now(),
+  cliente:sCliente.value,
+  clienteId:Number(sCliente.selectedOptions[0].dataset.id),
+  desc:sDesc.value,
+  valor:Number(sValor.value),
+  data:sData.value,
+  pagamentos:[],
+  cancelado:false
+ });
+ salvarTudo(); atualizar();
+}
+
+function statusServico(s){
+ if(s.cancelado) return "Cancelado";
+ let pago=s.pagamentos.reduce((t,p)=>t+p.valor,0);
+ if(pago==0) return "Em aberto";
+ if(pago<s.valor) return "Parcial";
+ return "Pago";
+}
+
+function editarServico(id){
+ let s=servicos.find(x=>x.id==id);
+ let valor=prompt("Valor do pagamento:");
+ let metodo=prompt("Forma (Pix/Dinheiro/Cartão):");
+ if(valor){
+  let pag={data:new Date().toISOString().slice(0,10),valor:Number(valor),metodo};
+  s.pagamentos.push(pag);
+  financeiro.entradas.push({
+   data:pag.data,
+   descricao:s.desc+" - "+s.cliente,
+   valor:pag.valor,
+   forma:pag.metodo
+  });
+  salvarTudo(); atualizar();
+ }
+}
+
+function cancelarServico(id){
+ let s=servicos.find(x=>x.id==id);
+ if(confirm("Cancelar serviço?")){
+  s.cancelado=true;
+  salvarTudo(); atualizar();
+ }
+}
+
+function excluirServico(id){
+ let s=servicos.find(x=>x.id==id);
+ if(s.pagamentos.length>0){
+  alert("Não pode excluir serviço com pagamento.");
+  return;
+ }
+ if(confirm("Excluir serviço?")){
+  servicos=servicos.filter(x=>x.id!=id);
+  salvarTudo(); atualizar();
+ }
+}
+
+// BACKUP
+function exportarBackup(){
+ let dados={clientes,servicos,financeiro,data:new Date().toISOString()};
+ let blob=new Blob([JSON.stringify(dados,null,2)],{type:"application/json"});
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="backup_barreto.json";
+ a.click();
+ msgBackup.innerText="Backup gerado com sucesso.";
+}
+
+function importarBackup(){
+ let file=fileBackup.files[0];
+ if(!file){alert("Selecione um arquivo");return;}
+ let reader=new FileReader();
+ reader.onload=e=>{
+  let dados=JSON.parse(e.target.result);
+  if(dados.clientes && dados.servicos && dados.financeiro){
+   clientes=dados.clientes; servicos=dados.servicos; financeiro=dados.financeiro;
+   salvarTudo(); msgBackup.innerText="Backup restaurado."; atualizar();
+  } else alert("Arquivo inválido.");
+ };
+ reader.readAsText(file);
+}
+
+// FILTROS
+function limparFiltros(){
+ buscaServico.value=""; filtroStatus.value="todos"; fIni.value=""; fFim.value="";
+ atualizar();
+}
+
+// ATUALIZAR
+function atualizar(){
+ // Dashboard
+ let total=0, recebido=0;
+ servicos.forEach(s=>{
+  if(!s.cancelado){
+   total+=s.valor;
+   recebido+=s.pagamentos.reduce((t,p)=>t+p.valor,0);
+  }
+ });
+ dash.innerHTML=`Total: R$ ${total}<br>Recebido: R$ ${recebido}<br>A receber: R$ ${total-recebido}`;
+
+ // Clientes (busca)
+ let termo=(buscaCliente.value||"").toLowerCase();
+ listaClientes.innerHTML="";
+ sCliente.innerHTML="";
+ clientes.filter(c=>{
+  return c.nome.toLowerCase().includes(termo) ||
+         c.tel.toLowerCase().includes(termo) ||
+         (c.cidade||"").toLowerCase().includes(termo);
+ }).forEach(c=>{
+  listaClientes.innerHTML+=`
+  <li>
+   <b>${c.nome}</b><br>
+   ${c.tel}<br>
+   ${c.rua}, ${c.bairro} - ${c.cidade}<br>
+   <button class="btnEdit" onclick="editarCliente(${c.id})">Editar</button>
+   <button class="btnDel" onclick="excluirCliente(${c.id})">Excluir</button>
+  </li><br>`;
+  sCliente.innerHTML+=`<option data-id="${c.id}">${c.nome}</option>`;
+ });
+
+ // Serviços (busca + filtros)
+ let termoS=(buscaServico.value||"").toLowerCase();
+ let st=filtroStatus.value;
+ let di=fIni.value, df=fFim.value;
+
+ tabelaServicos.innerHTML="<tr><th>Cliente</th><th>Serviço</th><th>Total</th><th>Pago</th><th>Status</th><th>Ações</th></tr>";
+ servicos.filter(s=>{
+  let okTermo = s.cliente.toLowerCase().includes(termoS) || s.desc.toLowerCase().includes(termoS);
+  let status=statusServico(s);
+  let okStatus = (st=="todos") || (status==st);
+  let okData = (!di || s.data>=di) && (!df || s.data<=df);
+  return okTermo && okStatus && okData;
+ }).forEach(s=>{
+  let pago=s.pagamentos.reduce((t,p)=>t+p.valor,0);
+  tabelaServicos.innerHTML+=`
+  <tr>
+   <td>${s.cliente}</td>
+   <td>${s.desc}</td>
+   <td>R$ ${s.valor}</td>
+   <td>R$ ${pago}</td>
+   <td>${statusServico(s)}</td>
+   <td>
+    <button class="btnEdit" onclick="editarServico(${s.id})">Editar</button>
+    <button class="btnCan" onclick="cancelarServico(${s.id})">Cancelar</button>
+    <button class="btnDel" onclick="excluirServico(${s.id})">Excluir</button>
+   </td>
+  </tr>`;
+ });
+
+ // Financeiro
+ tabelaFinanceiro.innerHTML="<tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th></tr>";
+ financeiro.entradas.forEach(e=>{
+  tabelaFinanceiro.innerHTML+=`
+  <tr>
+   <td>${e.data}</td>
+   <td>${e.descricao}</td>
+   <td>R$ ${e.valor}</td>
+   <td>${e.forma}</td>
+  </tr>`;
+ });
+}
+
+atualizar();
+</script>
+</body>
+</html>
