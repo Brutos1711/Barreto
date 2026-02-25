@@ -137,15 +137,28 @@ onAuthStateChanged(auth,(user)=>{
 /* SALVAR CLIENTE */
 
 window.salvarCliente = async function(){
-  await addDoc(collection(db,"clientes"),{
-    nome:nome.value,
-    telefone:telefone.value,
-    cep:cep.value,
-    rua:rua.value,
-    bairro:bairro.value,
-    cidade:cidade.value
-  });
-  alert("Cliente salvo!");
+  try{
+    await addDoc(collection(db,"clientes"),{
+      nome:nome.value,
+      telefone:telefone.value,
+      cep:cep.value,
+      rua:rua.value,
+      bairro:bairro.value,
+      cidade:cidade.value
+    });
+
+    alert("Cliente salvo com sucesso!");
+
+    nome.value="";
+    telefone.value="";
+    cep.value="";
+    rua.value="";
+    bairro.value="";
+    cidade.value="";
+
+  }catch(erro){
+    alert("Erro ao salvar: " + erro.message);
+  }
 }
 
 /* BUSCAR CLIENTE */
