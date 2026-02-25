@@ -166,12 +166,33 @@ window.salvarCliente = async function(){
 window.buscarCliente = async function(){
   const q = query(collection(db,"clientes"),where("nome","==",busca.value));
   const querySnapshot = await getDocs(q);
+
   resultado.innerHTML="";
+
   querySnapshot.forEach((doc)=>{
-    resultado.innerHTML += `<p>${doc.data().nome} - ${doc.data().telefone}</p>`;
+    const cliente = doc.data();
+
+    resultado.innerHTML += `
+      <div style="background:white; padding:15px; margin-top:10px; border-radius:15px; box-shadow:0 3px 10px rgba(0,0,0,0.1); cursor:pointer;"
+        onclick="abrirCliente('${cliente.nome}','${cliente.telefone}','${cliente.cep}','${cliente.rua}','${cliente.bairro}','${cliente.cidade}')">
+        <strong>${cliente.nome}</strong><br>
+        ${cliente.telefone}
+      </div>
+    `;
   });
 }
 
+window.abrirCliente = function(nome,telefone,cep,rua,bairro,cidade){
+  alert(
+    "Nome: " + nome + "\n\n" +
+    "Telefone: " + telefone + "\n\n" +
+    "CEP: " + cep + "\n" +
+    "Rua: " + rua + "\n" +
+    "Bairro: " + bairro + "\n" +
+    "Cidade: " + cidade
+  );
+}
+  
 /* CEP AUTOMÁTICO */
 
 const cepInput = document.getElementById("cep");
