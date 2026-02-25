@@ -150,10 +150,18 @@ onAuthStateChanged(auth,(user)=>{
 
 window.salvarCliente = async function(){
   try{
+
+    const tipoInput = document.getElementById("tipo");
+    const numeroInput = document.getElementById("numero");
+    const complementoInput = document.getElementById("complemento");
+
     await addDoc(collection(db,"clientes"),{
       nome:nome.value,
       telefone:telefone.value,
       cep:cep.value,
+      tipo:tipoInput.value,
+      numero:numeroInput.value,
+      complemento:complementoInput.value,
       rua:rua.value,
       bairro:bairro.value,
       cidade:cidade.value
@@ -164,6 +172,9 @@ window.salvarCliente = async function(){
     nome.value="";
     telefone.value="";
     cep.value="";
+    tipoInput.value="";
+    numeroInput.value="";
+    complementoInput.value="";
     rua.value="";
     bairro.value="";
     cidade.value="";
@@ -172,7 +183,6 @@ window.salvarCliente = async function(){
     alert("Erro ao salvar: " + erro.message);
   }
 }
-
 /* BUSCAR CLIENTE */
 
 window.buscarCliente = async function(){
