@@ -2,11 +2,8 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Barreto App</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
 
 <style>
 body{
@@ -42,6 +39,7 @@ button{
   background:black;
   color:white;
   border:none;
+  cursor:pointer;
 }
 
 h2{
@@ -107,6 +105,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* LOGIN */
+
 window.login = async function(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -119,8 +119,9 @@ window.register = async function(){
   await createUserWithEmailAndPassword(auth,email,password);
 }
 
-window.logout = function(){
-  signOut(auth);
+window.logout = async function(){
+  await signOut(auth);
+  location.reload();
 }
 
 onAuthStateChanged(auth,(user)=>{
@@ -132,6 +133,8 @@ onAuthStateChanged(auth,(user)=>{
     appScreen.style.display="none";
   }
 });
+
+/* SALVAR CLIENTE */
 
 window.salvarCliente = async function(){
   await addDoc(collection(db,"clientes"),{
@@ -145,6 +148,8 @@ window.salvarCliente = async function(){
   alert("Cliente salvo!");
 }
 
+/* BUSCAR CLIENTE */
+
 window.buscarCliente = async function(){
   const q = query(collection(db,"clientes"),where("nome","==",busca.value));
   const querySnapshot = await getDocs(q);
@@ -153,6 +158,48 @@ window.buscarCliente = async function(){
     resultado.innerHTML += `<p>${doc.data().nome} - ${doc.data().telefone}</p>`;
   });
 }
+
+/* CEP AUTOMÁTICO */
+
+const cepInput = document.getElementById("cep");
+const ruaInput = document.getElementById("rua");
+const bairroInput = document.getElementById("bairro");
+const cidadeInput = document.getElementById("cidade");
+
+cepInput.addEventListener("blur", async () => {
+  const valor = cepInput.value.replace(/\D/g, "");
+  if (valor.length === 8) {
+    try {
+      const resposta = await fetch(`https://viacep.com.br/ws/${valor}/json/`);
+      const dados = await resposta.json();
+      ruaInput.value = dados.logradouro || "";
+      bairroInput.value = dados.bairro || "";
+      cidadeInput.value = dados.localidade || "";
+    } catch {
+      alert("Erro ao buscar CEP");
+    }
+  }
+});
+
+/* TELEFONE AUTOMÁTICO */
+
+const telefoneInput = document.getElementById("telefone");
+
+telefoneInput.addEventListener("input", () => {
+  let t = telefoneInput.value.replace(/\D/g, "");
+
+  if (t.length > 11) t = t.slice(0, 11);
+
+  if (t.length > 10) {
+    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2,3)} ${t.slice(3,7)}-${t.slice(7,11)}`;
+  } else if (t.length > 6) {
+    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2,6)}-${t.slice(6)}`;
+  } else if (t.length > 2) {
+    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2)}`;
+  } else {
+    telefoneInput.value = t;
+  }
+});
 
 </script>
 </body>
