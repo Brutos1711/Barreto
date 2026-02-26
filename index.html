@@ -209,7 +209,25 @@ window.buscarCliente = async function(){
 window.carregarParaEdicao = async function(id){
 
   const clienteRef = doc(db,"clientes",id);
-  const clienteSnap = await getDocs(query(collection(db), where("__name__","==",id)));
+  const clienteSnap = await getDocs(
+    query(collection(db,"clientes"), where("__name__","==",id))
+  );
+
+  clienteSnap.forEach((docSnap)=>{
+    const c = docSnap.data();
+
+    nome.value = c.nome || "";
+    telefone.value = c.telefone || "";
+    cep.value = c.cep || "";
+    tipo.value = c.tipo || "";
+    numero.value = c.numero || "";
+    complemento.value = c.complemento || "";
+    rua.value = c.rua || "";
+    bairro.value = c.bairro || "";
+    cidade.value = c.cidade || "";
+  });
+
+  clienteEditandoId = id;
 
 }
   
