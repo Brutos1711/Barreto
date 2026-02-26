@@ -91,6 +91,23 @@ h2{
 <div id="resultado"></div>
 </div>
 
+<div id="areaServicos" class="card" style="display:none;">
+  <h2>Serviços do Cliente</h2>
+
+  <input type="text" id="descricaoServico" placeholder="Descrição do serviço">
+  <input type="date" id="dataServico">
+  <input type="number" id="valorServico" placeholder="Valor">
+  
+  <select id="statusServico">
+    <option value="Pendente">Pendente</option>
+    <option value="Pago">Pago</option>
+  </select>
+
+  <button onclick="salvarServico()">Salvar Serviço</button>
+
+  <div id="listaServicos"></div>
+</div>
+  
 <button onclick="logout()">Sair</button>
 
 </div>
@@ -212,6 +229,10 @@ window.buscarCliente = async function(){
         <button onclick="carregarParaEdicao('${id}')">Editar</button>
 <button onclick="excluirCliente('${id}')" style="background:red; margin-top:5px;">
 Excluir
+</button>
+<button onclick="abrirServicos('${id}','${cliente.nome}')"
+style="background:#007aff; margin-top:5px;">
+Serviços
 </button>
       </div>
     `;
