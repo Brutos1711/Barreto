@@ -277,6 +277,45 @@ window.abrirCliente = function(nome,telefone,cep,rua,bairro,cidade){
 
 window.excluirCliente = async function(id){
 
+let clienteServicoId = null;
+
+window.abrirServicos = async function(id, nome){
+
+  clienteServicoId = id;
+
+  document.getElementById("areaServicos").style.display = "block";
+
+  await listarServicos();
+
+}  
+
+window.listarServicos = async function(){
+
+  const q = query(
+    collection(db,"servicos"),
+    where("clienteId","==",clienteServicoId)
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  const lista = document.getElementById("listaServicos");
+  lista.innerHTML="";
+
+  querySnapshot.forEach((docSnap)=>{
+    const s = docSnap.data();
+
+    lista.innerHTML += `
+      <div style="margin-top:10px; padding:10px; background:#f2f2f7; border-radius:10px;">
+        <strong>${s.descricao}</strong><br>
+        Data: ${s.data}<br>
+        Valor: R$ ${s.valor}<br>
+        Status: ${s.status}
+      </div>
+    `;
+  });
+
+}
+  
   const confirmar = confirm("Tem certeza que deseja excluir este cliente?");
 
   if(!confirmar) return;
