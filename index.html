@@ -100,7 +100,7 @@ h2{
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBP8lpsBu0QX6ROmK7Ligb9s9XvunBppzA",
@@ -210,6 +210,9 @@ window.buscarCliente = async function(){
         <strong>${cliente.nome}</strong><br>
         ${cliente.telefone}<br><br>
         <button onclick="carregarParaEdicao('${id}')">Editar</button>
+<button onclick="excluirCliente('${id}')" style="background:red; margin-top:5px;">
+Excluir
+</button>
       </div>
     `;
   });
