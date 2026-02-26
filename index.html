@@ -253,6 +253,27 @@ window.abrirCliente = function(nome,telefone,cep,rua,bairro,cidade){
     "Cidade: " + cidade
   );
 }
+
+window.excluirCliente = async function(id){
+
+  const confirmar = confirm("Tem certeza que deseja excluir este cliente?");
+
+  if(!confirmar) return;
+
+  try{
+
+    const clienteRef = doc(db,"clientes",id);
+    await deleteDoc(clienteRef);
+
+    alert("Cliente excluído com sucesso!");
+
+    buscarCliente();
+
+  }catch(erro){
+    alert("Erro ao excluir: " + erro.message);
+  }
+
+}  
   
 /* CEP AUTOMÁTICO */
 
