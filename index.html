@@ -335,8 +335,22 @@ window.listarServicos = async function(){
 
 }  
 
-window.abrirServicos = function(){
-  alert("Funcionou!");
+let clienteServicoId = null;
+
+window.abrirServicos = async function(id, nome){
+
+  clienteServicoId = id;
+
+  const area = document.getElementById("areaServicos");
+
+  if(area){
+    area.style.display = "block";
+  }
+
+  if(typeof listarServicos === "function"){
+    await listarServicos();
+  }
+
 }
   
 /* CEP AUTOMÁTICO */
