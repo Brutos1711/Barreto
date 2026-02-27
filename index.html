@@ -352,6 +352,33 @@ window.abrirServicos = async function(id, nome){
   }
 
 }
+
+window.salvarServico = async function(){
+
+  try{
+
+    await addDoc(collection(db,"servicos"),{
+      clienteId: clienteServicoId,
+      descricao: document.getElementById("descricaoServico").value,
+      data: document.getElementById("dataServico").value,
+      valor: document.getElementById("valorServico").value,
+      status: document.getElementById("statusServico").value
+    });
+
+    alert("Serviço salvo com sucesso!");
+
+    document.getElementById("descricaoServico").value = "";
+    document.getElementById("dataServico").value = "";
+    document.getElementById("valorServico").value = "";
+    document.getElementById("statusServico").value = "Pendente";
+
+    listarServicos();
+
+  }catch(erro){
+    alert("Erro ao salvar serviço: " + erro.message);
+  }
+
+}
   
 /* CEP AUTOMÁTICO */
 
