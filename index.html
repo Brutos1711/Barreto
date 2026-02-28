@@ -362,22 +362,43 @@ window.listarServicos = async function(){
 
 window.salvarServico = async function(){
 
+  const valor = Number(document.getElementById("valorServico").value);
+  const inicioPrev = document.getElementById("dataInicioPrevista").value;
+  const fimPrev = document.getElementById("dataFimPrevista").value;
+
+  if(!inicioPrev || !fimPrev){
+    alert("Preencha as datas!");
+    return;
+  }
+
+  const mediaDias = Math.ceil(
+    (new Date(fimPrev) - new Date(inicioPrev)) /
+    (1000 * 60 * 60 * 24)
+  );
+
   try{
+
     await addDoc(collection(db,"servicos"),{
       clienteId: clienteServicoId,
       descricao: document.getElementById("descricaoServico").value,
-      data: document.getElementById("dataServico").value,
-      valor: document.getElementById("valorServico").value,
-      status: document.getElementById("statusServico").value
+
+      valor: valor,
+      pago: 0,
+      restante: valor,
+      formaPagamento: document.getElementById("formaPagamento").value,
+
+      status: document.getElementById("statusServico").value,
+
+      dataInicioPrevista: inicioPrev,
+      dataFimPrevista: fimPrev,
+      dataInicioReal: null,
+      dataFimReal: null,
+      mediaDias: mediaDias,
+
+      cancelado: false
     });
 
-    alert("Serviço salvo com sucesso!");
-
-    document.getElementById("descricaoServico").value = "";
-    document.getElementById("dataServico").value = "";
-    document.getElementById("valorServico").value = "";
-    document.getElementById("statusServico").value = "Pendente";
-
+    alert("Serviço criado com sucesso!");
     listarServicos();
 
   }catch(erro){
