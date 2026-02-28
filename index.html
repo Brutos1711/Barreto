@@ -401,17 +401,6 @@ window.salvarServico = async function(){
 
 };
 
-  if (t.length > 10) {
-    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2,3)} ${t.slice(3,7)}-${t.slice(7,11)}`;
-  } else if (t.length > 6) {
-    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2,6)}-${t.slice(6)}`;
-  } else if (t.length > 2) {
-    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2)}`;
-  } else {
-    telefoneInput.value = t;
-  }
-});
-    
 /* CEP AUTOMÁTICO */
 
 const cepInput = document.getElementById("cep");
