@@ -275,19 +275,33 @@ window.abrirCliente = function(nome,telefone,cep,rua,bairro,cidade){
   );
 }
 
+/* EXCLUIR CLIENTE */
+
 window.excluirCliente = async function(id){
+
+  const confirmar = confirm("Tem certeza que deseja excluir este cliente?");
+  if(!confirmar) return;
+
+  try{
+    const clienteRef = doc(db,"clientes",id);
+    await deleteDoc(clienteRef);
+    alert("Cliente excluído com sucesso!");
+    buscarCliente();
+  }catch(erro){
+    alert("Erro ao excluir: " + erro.message);
+  }
+
+};
+
+/* SERVIÇOS */
 
 let clienteServicoId = null;
 
-window.abrirServicos = async function(id, nome){
-
+window.abrirServicos = async function(id){
   clienteServicoId = id;
-
   document.getElementById("areaServicos").style.display = "block";
-
   await listarServicos();
-
-}  
+};
 
 window.listarServicos = async function(){
 
@@ -297,7 +311,6 @@ window.listarServicos = async function(){
   );
 
   const querySnapshot = await getDocs(q);
-
   const lista = document.getElementById("listaServicos");
   lista.innerHTML="";
 
@@ -314,70 +327,11 @@ window.listarServicos = async function(){
     `;
   });
 
-}
-  
-  const confirmar = confirm("Tem certeza que deseja excluir este cliente?");
-
-  if(!confirmar) return;
-
-  try{
-
-    const clienteRef = doc(db,"clientes",id);
-    await deleteDoc(clienteRef);
-
-    alert("Cliente excluído com sucesso!");
-
-    buscarCliente();
-
-  }catch(erro){
-    alert("Erro ao excluir: " + erro.message);
-  }
-
-}  
-
-let clienteServicoId = null;
-
-window.abrirServicos = async function(id, nome){
-
-  clienteServicoId = id;
-
-  const area = document.getElementById("areaServicos");
-
-  if(area){
-    area.style.display = "block";
-  }
-
-  if(typeof listarServicos === "function"){
-    await listarServicos();
-  }
-
-}
+};
 
 window.salvarServico = async function(){
 
   try{
-
-    await addDoc(collection(db,"servicos"),{
-      clienteId: clienteServicoId,
-      descricao: document.getElementById("descricaoServico").value,
-      data: document.getElementById("dataServico").value,
-      valor: document.getElementById("valorServico").value,
-      status: document.getElementById("statusServico").value
-    });
-
-    alert("Serviço salvo com sucesso!");
-
-    document.getElementById("descricaoServico").value = "";
-    document.getElementById("dataServico").value = "";
-    document.getElementById("valorServico").value = "";
-    document.getElementById("statusServico").value = "Pendente";
-
-    listarServicos();
-
-window.salvarServico = async function(){
-
-  try{
-
     await addDoc(collection(db,"servicos"),{
       clienteId: clienteServicoId,
       descricao: document.getElementById("descricaoServico").value,
@@ -399,7 +353,7 @@ window.salvarServico = async function(){
     alert("Erro ao salvar serviço: " + erro.message);
   }
 
-};
+};  
 
 /* CEP AUTOMÁTICO */
 
