@@ -94,6 +94,47 @@ h2{
 <div id="areaServicos" class="card" style="display:none;">
   <h2>Serviços do Cliente</h2>
 
+  <hr>
+
+  <h3>Novo Serviço</h3>
+
+  <input type="text" id="descricaoServico" placeholder="Descrição">
+
+  <input type="number" id="valorServico" placeholder="Valor">
+
+  <select id="formaPagamento">
+    <option value="Pix">Pix</option>
+    <option value="Cartão">Cartão</option>
+    <option value="Dinheiro">Dinheiro</option>
+    <option value="Transferência">Transferência</option>
+  </select>
+
+  <br><br>
+
+  <label>Início Previsto</label>
+  <input type="date" id="dataInicioPrevista">
+
+  <label>Fim Previsto</label>
+  <input type="date" id="dataFimPrevista">
+
+  <br><br>
+
+  <select id="statusServico">
+    <option value="Orçamento">Orçamento</option>
+    <option value="Agendado">Agendado</option>
+    <option value="Em andamento">Em andamento</option>
+    <option value="Finalizado">Finalizado</option>
+  </select>
+
+  <br><br>
+
+  <button onclick="salvarServico()">Salvar Serviço</button>
+
+  <hr>
+
+  <div id="listaServicos"></div>
+
+</div>
   <input type="text" id="descricaoServico" placeholder="Descrição do serviço">
   <input type="date" id="dataServico">
   <input type="number" id="valorServico" placeholder="Valor">
