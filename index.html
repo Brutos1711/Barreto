@@ -351,7 +351,11 @@ window.listarServicos = async function(){
     lista.innerHTML += `
       <div style="margin-top:10px; padding:10px; background:#f2f2f7; border-radius:10px;">
         <strong>${s.descricao}</strong><br>
-        Data: ${s.data}<br>
+        Início Previsto: ${s.dataInicioPrevista || "-"}<br>
+        Fim Previsto: ${s.dataFimPrevista || "-"}<br>
+        Início Real: ${s.dataInicioReal || "-"}<br>
+        Fim Real: ${s.dataFimReal || "-"}<br>
+        Média: ${s.mediaDias || 0} dias<br>
         Valor: R$ ${s.valor}<br>
         Status: ${s.status}
       </div>
