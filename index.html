@@ -136,9 +136,6 @@ h2{
 
 </div>
 
-  <div id="listaServicos"></div>
-</div>
-  
 <button onclick="logout()">Sair</button>
 
 </div>
@@ -411,6 +408,72 @@ window.salvarServico = async function(){
 
 };  
 
+// ================= EDITAR SERVIÇO =================
+window.editarServico = async function(id){
+
+  const servicoRef = doc(db,"servicos",id);
+  const servicoSnap = await getDoc(servicoRef);
+  const s = servicoSnap.data();
+
+  const novaDescricao = prompt("Nova descrição:", s.descricao);
+  const novoValor = Number(prompt("Novo valor:", s.valor));
+
+  if(!novaDescricao || !novoValor){
+    alert("Dados inválidos");
+    return;
+  }
+
+  if(novoValor < s.pago){
+    alert("Novo valor não pode ser menor que o já pago!");
+    return;
+  }
+
+  await updateDoc(servicoRef,{
+    descricao: novaDescricao,
+    valor: novoValor,
+    restante: novoValor - s.pago
+  });
+
+  listarServicos();
+};
+
+// ================= REGISTRAR PAGAMENTO =================
+window.registrarPagamento = async function(id){
+
+  const servicoRef = doc(db,"servicos",id);
+  const servicoSnap = await getDoc(servicoRef);
+  const s = servicoSnap.data();
+
+  const valorNovo = Number(prompt("Valor pago:"));
+  const forma = prompt("Forma de pagamento:");
+
+  if(!valorNovo || valorNovo <= 0){
+    alert("Valor inválido");
+    return;
+  }
+
+  const novoTotal = s.pago + valorNovo;
+
+  if(novoTotal > s.valor){
+    alert("Não pode pagar mais que o valor total!");
+    return;
+  }
+
+  const novoPagamento = {
+    valor: valorNovo,
+    forma: forma,
+    data: new Date().toISOString()
+  };
+
+  await updateDoc(servicoRef,{
+    pago: novoTotal,
+    restante: s.valor - novoTotal,
+    pagamentos: [...(s.pagamentos || []), novoPagamento]
+  });
+
+  listarServicos();
+};
+  
 /* CEP AUTOMÁTICO */
 
 const cepInput = document.getElementById("cep");
