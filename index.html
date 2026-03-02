@@ -345,18 +345,31 @@ window.listarServicos = async function(){
   querySnapshot.forEach((docSnap)=>{
     const s = docSnap.data();
 
-    lista.innerHTML += `
-      <div style="margin-top:10px; padding:10px; background:#f2f2f7; border-radius:10px;">
-        <strong>${s.descricao}</strong><br>
-        Início Previsto: ${s.dataInicioPrevista || "-"}<br>
-        Fim Previsto: ${s.dataFimPrevista || "-"}<br>
-        Início Real: ${s.dataInicioReal || "-"}<br>
-        Fim Real: ${s.dataFimReal || "-"}<br>
-        Média: ${s.mediaDias || 0} dias<br>
-        Valor: R$ ${s.valor}<br>
-        Status: ${s.status}
-      </div>
-    `;
+lista.innerHTML += `
+  <div style="margin-top:10px; padding:10px; background:#f2f2f7; border-radius:10px;">
+    
+    <strong>${s.descricao}</strong><br><br>
+
+    Início Previsto: ${s.dataInicioPrevista || "-"}<br>
+    Fim Previsto: ${s.dataFimPrevista || "-"}<br>
+    Média: ${s.mediaDias || 0} dias<br><br>
+
+    Valor: R$ ${s.valor}<br>
+    Pago: R$ ${s.pago || 0}<br>
+    Restante: R$ ${s.restante || s.valor}<br>
+    Status: ${s.status}<br><br>
+
+    <button onclick="editarServico('${docSnap.id}')">
+      Editar Serviço
+    </button>
+
+    <button onclick="registrarPagamento('${docSnap.id}')" 
+      style="background:#007aff; margin-top:5px;">
+      Adicionar Pagamento
+    </button>
+
+  </div>
+`;
   });
 
 };
