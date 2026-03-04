@@ -281,11 +281,10 @@ Serviços
 window.carregarParaEdicao = async function(id){
 
   const clienteRef = doc(db,"clientes",id);
-const clienteRef = doc(db,"clientes",id);
-const clienteSnap = await getDoc(clienteRef);
+  const clienteSnap = await getDoc(clienteRef);
 
-if(clienteSnap.exists()){
-  const c = clienteSnap.data();
+  if(clienteSnap.exists()){
+    const c = clienteSnap.data();
 
     nome.value = c.nome || "";
     telefone.value = c.telefone || "";
@@ -296,10 +295,9 @@ if(clienteSnap.exists()){
     rua.value = c.rua || "";
     bairro.value = c.bairro || "";
     cidade.value = c.cidade || "";
-  });
+  }
 
   clienteEditandoId = id;
-
 }
   
 window.abrirCliente = function(nome,telefone,cep,rua,bairro,cidade){
