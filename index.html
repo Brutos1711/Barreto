@@ -246,37 +246,38 @@ window.salvarCliente = async function(){
 /* BUSCAR CLIENTE */
 
 window.buscarCliente = async function(){
-const querySnapshot = await getDocs(collection(db,"clientes"));
 
-resultado.innerHTML="";
-
-querySnapshot.forEach((docSnap)=>{
-  const cliente = docSnap.data();
-  const id = docSnap.id;
-
-  if(cliente.nome.toLowerCase().includes(busca.value.toLowerCase())){
+  const querySnapshot = await getDocs(collection(db,"clientes"));
   resultado.innerHTML="";
 
   querySnapshot.forEach((docSnap)=>{
     const cliente = docSnap.data();
     const id = docSnap.id;
 
-    resultado.innerHTML += `
-      <div style="background:white; padding:15px; margin-top:10px; border-radius:15px; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
-        <strong>${cliente.nome}</strong><br>
-        ${cliente.telefone}<br><br>
-        <button onclick="carregarParaEdicao('${id}')">Editar</button>
-<button onclick="excluirCliente('${id}')" style="background:red; margin-top:5px;">
-Excluir
-</button>
-<button onclick="abrirServicos('${id}','${cliente.nome}')"
-style="background:#007aff; margin-top:5px;">
-Serviços
-</button>
-      </div>
-    `;
+    if(cliente.nome.toLowerCase().includes(busca.value.toLowerCase())){
+
+      resultado.innerHTML += `
+        <div style="background:white; padding:15px; margin-top:10px; border-radius:15px; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
+          <strong>${cliente.nome}</strong><br>
+          ${cliente.telefone}<br><br>
+
+          <button onclick="carregarParaEdicao('${id}')">Editar</button>
+
+          <button onclick="excluirCliente('${id}')" style="background:red; margin-top:5px;">
+            Excluir
+          </button>
+
+          <button onclick="abrirServicos('${id}')" 
+            style="background:#007aff; margin-top:5px;">
+            Serviços
+          </button>
+        </div>
+      `;
+    }
+
   });
-}
+
+};
 
 window.carregarParaEdicao = async function(id){
 
