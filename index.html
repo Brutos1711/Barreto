@@ -207,6 +207,11 @@ window.salvarCliente = async function(){
       cidade:cidade.value
     };
 
+    if(!dados.nome || dados.nome.trim() === ""){
+      alert("Informe o nome do cliente!");
+      return;
+    }
+
     if(clienteEditandoId){
 
       const clienteRef = doc(db,"clientes",clienteEditandoId);
@@ -241,9 +246,15 @@ window.salvarCliente = async function(){
 /* BUSCAR CLIENTE */
 
 window.buscarCliente = async function(){
-  const q = query(collection(db,"clientes"),where("nome","==",busca.value));
-  const querySnapshot = await getDocs(q);
+const querySnapshot = await getDocs(collection(db,"clientes"));
 
+resultado.innerHTML="";
+
+querySnapshot.forEach((docSnap)=>{
+  const cliente = docSnap.data();
+  const id = docSnap.id;
+
+  if(cliente.nome.toLowerCase().includes(busca.value.toLowerCase())){
   resultado.innerHTML="";
 
   querySnapshot.forEach((docSnap)=>{
@@ -270,12 +281,11 @@ Serviços
 window.carregarParaEdicao = async function(id){
 
   const clienteRef = doc(db,"clientes",id);
-  const clienteSnap = await getDocs(
-    query(collection(db,"clientes"), where("__name__","==",id))
-  );
+const clienteRef = doc(db,"clientes",id);
+const clienteSnap = await getDoc(clienteRef);
 
-  clienteSnap.forEach((docSnap)=>{
-    const c = docSnap.data();
+if(clienteSnap.exists()){
+  const c = clienteSnap.data();
 
     nome.value = c.nome || "";
     telefone.value = c.telefone || "";
