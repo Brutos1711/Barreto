@@ -577,20 +577,17 @@ telefoneInput.addEventListener("input", function(){
 });
 
 <script>
-  
-function mostrarAba(id){
 
-document.querySelectorAll(".aba").forEach(function(el){
-el.style.display="none";
-});
-
-document.getElementById(id).style.display="block";
-
+window.mostrarAba = function(aba){
+document.querySelectorAll(".aba").forEach(el=>el.style.display="none");
+document.getElementById(aba).style.display="block";
 }
 
-// abrir clientes automaticamente
-mostrarAba("clientes");
-  
 </script>
+
+<div id="clientes">
+
+</div>  
+
 </body>
 </html>
