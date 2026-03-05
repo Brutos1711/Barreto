@@ -45,6 +45,22 @@ button{
 h2{
   text-align:center;
 }
+
+.menu{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.menu button{
+  flex:1;
+  background:#007aff;
+}
+
+.aba{
+  display:none;
+}
+  
 </style>
 </head>
 <body>
@@ -61,9 +77,22 @@ h2{
 </div>
 
 <!-- APP -->
+<!-- APP -->
 <div id="appScreen" style="display:none;">
 
+<!-- MENU -->
+<div class="menu">
+<button onclick="mostrarAba('clientes')">Clientes</button>
+<button onclick="mostrarAba('servicos')">Serviços</button>
+<button onclick="mostrarAba('financeiro')">Financeiro</button>
+</div>
+
 <div class="card">
+<div id="clientes" class="aba">
+
+<div class="card">
+<h2>Cadastro Cliente</h2>  
+  
 <h2>Cadastro Cliente</h2>
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
@@ -90,7 +119,11 @@ h2{
 <button onclick="buscarCliente()">Buscar</button>
 <div id="resultado"></div>
 </div>
+  
+</div>
 
+<div id="servicos" class="aba">
+  
 <div id="areaServicos" class="card" style="display:none;">
   <h2>Serviços do Cliente</h2>
 
@@ -136,6 +169,23 @@ h2{
 
 </div>
 
+</div>
+
+<div id="financeiro" class="aba">
+
+<div class="card">
+<h2>Relatório Financeiro</h2>
+
+<p>Total Recebido: R$ 0</p>
+<p>Total a Receber: R$ 0</p>
+<p>Pago no Pix: R$ 0</p>
+<p>Pago no Dinheiro: R$ 0</p>
+<p>Pago no Cartão: R$ 0</p>
+
+</div>
+
+</div>
+  
 <button onclick="logout()">Sair</button>
 
 </div>
@@ -526,6 +576,19 @@ telefoneInput.addEventListener("input", function(){
     telefoneInput.value = t;
   }
 });
+
+function mostrarAba(id){
+
+document.querySelectorAll(".aba").forEach(function(el){
+el.style.display="none";
+});
+
+document.getElementById(id).style.display="block";
+
+}
+
+// abrir clientes automaticamente
+mostrarAba("clientes");
   
 </script>
 </body>
