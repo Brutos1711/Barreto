@@ -241,15 +241,7 @@ window.salvarCliente = async function(){
 /* BUSCAR CLIENTE */
 
 window.buscarCliente = async function(){
-
-  const texto = busca.value.trim();
-
-  const q = query(
-    collection(db,"clientes"),
-    where("nome",">=",texto),
-    where("nome","<=",texto + "\uf8ff")
-  );
-
+  const q = query(collection(db,"clientes"),where("nome","==",busca.value));
   const querySnapshot = await getDocs(q);
 
   resultado.innerHTML="";
@@ -257,43 +249,18 @@ window.buscarCliente = async function(){
   querySnapshot.forEach((docSnap)=>{
     const cliente = docSnap.data();
     const id = docSnap.id;
-  });
 
-}
-
-/* BUSCA AUTOMÁTICA */
-
-busca.addEventListener("input", function(){
-  buscarCliente();
-});
-
-resultado.innerHTML += `
-  <div style="
-    background:white;
-    padding:15px;
-    margin-top:10px;
-    border-radius:15px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.1);
-  ">
-
-    <strong style="font-size:18px;">${cliente.nome}</strong><br><br>
-
-    📱 ${cliente.telefone || "-"}<br>
-    🏠 ${cliente.tipo || "-"}<br>
-    📍 ${cliente.rua || "-"}, ${cliente.numero || ""}<br>
-    🏙 ${cliente.cidade || "-"}<br><br>
-<button onclick="carregarParaEdicao('${id}')">
-✏️ Editar
+    resultado.innerHTML += `
+      <div style="background:white; padding:15px; margin-top:10px; border-radius:15px; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
+        <strong>${cliente.nome}</strong><br>
+        ${cliente.telefone}<br><br>
+        <button onclick="carregarParaEdicao('${id}')">Editar</button>
+<button onclick="excluirCliente('${id}')" style="background:red; margin-top:5px;">
+Excluir
 </button>
-
-<button onclick="excluirCliente('${id}')" 
-style="background:#ff3b30; margin-top:5px;">
-🗑 Excluir
-</button>
-
-<button onclick="abrirServicos('${id}')" 
+<button onclick="abrirServicos('${id}','${cliente.nome}')"
 style="background:#007aff; margin-top:5px;">
-🔧 Serviços
+Serviços
 </button>
       </div>
     `;
