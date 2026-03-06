@@ -209,29 +209,50 @@ onAuthStateChanged(auth,(user)=>{
 
 window.salvarCliente = async function(){
 
-  const q = query(
-    collection(db,"clientes"),
-    where("telefone","==",telefone.value)
-  );
+  try{
 
-  const verificar = await getDocs(q);
+    const dados = {
+      nome:nome.value,
+      telefone:telefone.value,
+      cep:cep.value,
+      tipo:tipo.value,
+      numero:numero.value,
+      complemento:complemento.value,
+      rua:rua.value,
+      bairro:bairro.value,
+      cidade:cidade.value
+    };
 
-  if(!verificar.empty && !clienteEditandoId){
-    alert("Já existe um cliente com esse telefone.");
-    return;
+    if(clienteEditandoId){
+
+      const clienteRef = doc(db,"clientes",clienteEditandoId);
+      await updateDoc(clienteRef,dados);
+
+      alert("Cliente atualizado com sucesso!");
+      clienteEditandoId = null;
+
+    }else{
+
+      await addDoc(collection(db,"clientes"),dados);
+      alert("Cliente salvo com sucesso!");
+
+    }
+
+    nome.value="";
+    telefone.value="";
+    cep.value="";
+    tipo.value="";
+    numero.value="";
+    complemento.value="";
+    rua.value="";
+    bairro.value="";
+    cidade.value="";
+
+  }catch(erro){
+    alert("Erro: " + erro.message);
   }
 
-  const dados = {
-    nome:nome.value,
-    telefone:telefone.value,
-    cep:cep.value,
-    tipo:tipo.value,
-    numero:numero.value,
-    complemento:complemento.value,
-    rua:rua.value,
-    bairro:bairro.value,
-    cidade:cidade.value
-  };
+}
 
     if(clienteEditandoId){
 
