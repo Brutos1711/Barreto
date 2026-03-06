@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -8,58 +7,46 @@
 
 <style>
 body{
-margin:0;
-font-family:-apple-system,BlinkMacSystemFont;
-background:#f2f2f7;
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont;
+  background:#f2f2f7;
 }
 
 .container{
-max-width:430px;
-margin:auto;
-padding:20px;
+  max-width:430px;
+  margin:auto;
+  padding:20px;
 }
 
 .card{
-background:white;
-padding:20px;
-border-radius:20px;
-box-shadow:0 4px 15px rgba(0,0,0,0.1);
-margin-bottom:20px;
+  background:white;
+  padding:20px;
+  border-radius:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom:20px;
 }
 
-input,button,select{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:12px;
-border:1px solid #ddd;
-font-size:16px;
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:16px;
 }
 
 button{
-background:black;
-color:white;
-border:none;
-cursor:pointer;
+  background:black;
+  color:white;
+  border:none;
+  cursor:pointer;
 }
 
-.menu{
-display:flex;
-gap:10px;
-margin-bottom:20px;
-}
-
-.menu button{
-flex:1;
-background:#007aff;
-}
-
-.aba{
-display:none;
+h2{
+  text-align:center;
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -76,35 +63,24 @@ display:none;
 <!-- APP -->
 <div id="appScreen" style="display:none;">
 
-<div class="menu">
-<button onclick="mostrarAba('clientes')">Clientes</button>
-<button onclick="mostrarAba('servicos')">Serviços</button>
-<button onclick="mostrarAba('financeiro')">Financeiro</button>
-</div>
-
-<!-- CLIENTES -->
-<div id="clientes" class="aba">
-
 <div class="card">
 <h2>Cadastro Cliente</h2>
-
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
 <input type="text" id="cep" placeholder="CEP">
 
 <select id="tipo">
-<option value="">Tipo de imóvel</option>
-<option value="Casa">Casa</option>
-<option value="Apartamento">Apartamento</option>
+  <option value="">Tipo de imóvel</option>
+  <option value="Casa">Casa</option>
+  <option value="Apartamento">Apartamento</option>
 </select>
 
 <input type="text" id="numero" placeholder="Número">
-<input type="text" id="complemento" placeholder="Complemento">
+<input type="text" id="complemento" placeholder="Complemento (Bloco / Apto)">
 
 <input type="text" id="rua" placeholder="Rua">
 <input type="text" id="bairro" placeholder="Bairro">
 <input type="text" id="cidade" placeholder="Cidade">
-
 <button onclick="salvarCliente()">Salvar</button>
 </div>
 
@@ -115,65 +91,48 @@ display:none;
 <div id="resultado"></div>
 </div>
 
-</div>
-
-<!-- SERVIÇOS -->
-<div id="servicos" class="aba">
-
 <div id="areaServicos" class="card" style="display:none;">
+  <h2>Serviços do Cliente</h2>
 
-<h2>Serviços do Cliente</h2>
+  <hr>
 
-<input type="text" id="descricaoServico" placeholder="Descrição">
+  <h3>Novo Serviço</h3>
 
-<input type="number" id="valorServico" placeholder="Valor">
+  <input type="text" id="descricaoServico" placeholder="Descrição">
 
-<select id="formaPagamento">
-<option>Pix</option>
-<option>Cartão</option>
-<option>Dinheiro</option>
-<option>Transferência</option>
-</select>
+  <input type="number" id="valorServico" placeholder="Valor">
 
-<label>Início Previsto</label>
-<input type="date" id="dataInicioPrevista">
+  <select id="formaPagamento">
+    <option value="Pix">Pix</option>
+    <option value="Cartão">Cartão</option>
+    <option value="Dinheiro">Dinheiro</option>
+    <option value="Transferência">Transferência</option>
+  </select>
 
-<label>Fim Previsto</label>
-<input type="date" id="dataFimPrevista">
+  <br><br>
 
-<select id="statusServico">
-<option>Orçamento</option>
-<option>Agendado</option>
-<option>Em andamento</option>
-<option>Finalizado</option>
-</select>
+  <label>Início Previsto</label>
+  <input type="date" id="dataInicioPrevista">
 
-<button onclick="salvarServico()">Salvar Serviço</button>
+  <label>Fim Previsto</label>
+  <input type="date" id="dataFimPrevista">
 
-<hr>
+  <br><br>
 
-<div id="listaServicos"></div>
+  <select id="statusServico">
+    <option value="Orçamento">Orçamento</option>
+    <option value="Agendado">Agendado</option>
+    <option value="Em andamento">Em andamento</option>
+    <option value="Finalizado">Finalizado</option>
+  </select>
 
-</div>
+  <br><br>
 
-</div>
+  <button onclick="salvarServico()">Salvar Serviço</button>
 
-<!-- FINANCEIRO -->
-<div id="financeiro" class="aba">
+  <hr>
 
-<div class="card">
-
-<h2>Relatório Financeiro</h2>
-
-<p>Total Recebido: R$ <span id="totalRecebido">0</span></p>
-<p>Total a Receber: R$ <span id="totalReceber">0</span></p>
-<p>Pago no Pix: R$ <span id="totalPix">0</span></p>
-<p>Pago no Dinheiro: R$ <span id="totalDinheiro">0</span></p>
-<p>Pago no Cartão: R$ <span id="totalCartao">0</span></p>
-
-<button onclick="calcularFinanceiro()">Atualizar Relatório</button>
-
-</div>
+  <div id="listaServicos"></div>
 
 </div>
 
@@ -189,215 +148,385 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, on
 import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSy",
-authDomain: "barreto-f590b.firebaseapp.com",
-projectId: "barreto-f590b",
-storageBucket: "barreto-f590b.firebasestorage.app",
-messagingSenderId: "780260431308",
-appId: "1:780260431308:web:71f990a107e4cc62db7969"
+  apiKey: "AIzaSyBP8lpsBu0QX6ROmK7Ligb9s9XvunBppzA",
+  authDomain: "barreto-f590b.firebaseapp.com",
+  projectId: "barreto-f590b",
+  storageBucket: "barreto-f590b.firebasestorage.app",
+  messagingSenderId: "780260431308",
+  appId: "1:780260431308:web:71f990a107e4cc62db7969"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+let clienteEditandoId = null;  
 
-let clienteServicoId = null;
-
-window.mostrarAba = function(aba){
-document.querySelectorAll(".aba").forEach(el=>el.style.display="none");
-document.getElementById(aba).style.display="block";
-}
-
-onAuthStateChanged(auth,(user)=>{
-if(user){
-loginScreen.style.display="none";
-appScreen.style.display="block";
-mostrarAba("clientes");
-}else{
-loginScreen.style.display="block";
-appScreen.style.display="none";
-}
-});
+/* LOGIN */
 
 window.login = async function(){
-await signInWithEmailAndPassword(auth,email.value,password.value);
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  await signInWithEmailAndPassword(auth,email,password);
 }
 
 window.register = async function(){
-await createUserWithEmailAndPassword(auth,email.value,password.value);
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  await createUserWithEmailAndPassword(auth,email,password);
 }
 
 window.logout = async function(){
-await signOut(auth);
-location.reload();
+  await signOut(auth);
+  location.reload();
 }
 
-/* CLIENTE */
+onAuthStateChanged(auth,(user)=>{
+  if(user){
+    loginScreen.style.display="none";
+    appScreen.style.display="block";
+  }else{
+    loginScreen.style.display="block";
+    appScreen.style.display="none";
+  }
+});
+
+/* SALVAR CLIENTE */
 
 window.salvarCliente = async function(){
+  try{
 
-await addDoc(collection(db,"clientes"),{
-nome:nome.value,
-telefone:telefone.value,
-cep:cep.value,
-tipo:tipo.value,
-numero:numero.value,
-complemento:complemento.value,
-rua:rua.value,
-bairro:bairro.value,
-cidade:cidade.value
-});
+    const dados = {
+      nome:nome.value,
+      telefone:telefone.value,
+      cep:cep.value,
+      tipo:tipo.value,
+      numero:numero.value,
+      complemento:complemento.value,
+      rua:rua.value,
+      bairro:bairro.value,
+      cidade:cidade.value
+    };
 
-alert("Cliente salvo");
+    if(clienteEditandoId){
 
+      const clienteRef = doc(db,"clientes",clienteEditandoId);
+      await updateDoc(clienteRef,dados);
+
+      alert("Cliente atualizado com sucesso!");
+      clienteEditandoId = null;
+
+    }else{
+
+      await addDoc(collection(db,"clientes"),dados);
+      alert("Cliente salvo com sucesso!");
+
+    }
+
+    // limpar formulário
+    nome.value="";
+    telefone.value="";
+    cep.value="";
+    tipo.value="";
+    numero.value="";
+    complemento.value="";
+    rua.value="";
+    bairro.value="";
+    cidade.value="";
+
+  }catch(erro){
+    alert("Erro: " + erro.message);
+  }
 }
+  
+/* BUSCAR CLIENTE */
 
 window.buscarCliente = async function(){
+  const q = query(collection(db,"clientes"),where("nome","==",busca.value));
+  const querySnapshot = await getDocs(q);
 
-const q=query(collection(db,"clientes"),where("nome","==",busca.value));
-const snap=await getDocs(q);
+  resultado.innerHTML="";
 
-resultado.innerHTML="";
+  querySnapshot.forEach((docSnap)=>{
+    const cliente = docSnap.data();
+    const id = docSnap.id;
 
-snap.forEach((docSnap)=>{
-
-const c=docSnap.data();
-
-resultado.innerHTML+=`
-
-<div class="card">
-
-<strong>${c.nome}</strong><br>
-${c.telefone}
-
-<button onclick="abrirServicos('${docSnap.id}')">
+    resultado.innerHTML += `
+      <div style="background:white; padding:15px; margin-top:10px; border-radius:15px; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
+        <strong>${cliente.nome}</strong><br>
+        ${cliente.telefone}<br><br>
+        <button onclick="carregarParaEdicao('${id}')">Editar</button>
+<button onclick="excluirCliente('${id}')" style="background:red; margin-top:5px;">
+Excluir
+</button>
+<button onclick="abrirServicos('${id}','${cliente.nome}')"
+style="background:#007aff; margin-top:5px;">
 Serviços
 </button>
+      </div>
+    `;
+  });
+}
 
-</div>
+window.carregarParaEdicao = async function(id){
 
-`;
+  const clienteRef = doc(db,"clientes",id);
+  const clienteSnap = await getDocs(
+    query(collection(db,"clientes"), where("__name__","==",id))
+  );
 
-});
+  clienteSnap.forEach((docSnap)=>{
+    const c = docSnap.data();
+
+    nome.value = c.nome || "";
+    telefone.value = c.telefone || "";
+    cep.value = c.cep || "";
+    tipo.value = c.tipo || "";
+    numero.value = c.numero || "";
+    complemento.value = c.complemento || "";
+    rua.value = c.rua || "";
+    bairro.value = c.bairro || "";
+    cidade.value = c.cidade || "";
+  });
+
+  clienteEditandoId = id;
 
 }
+  
+window.abrirCliente = function(nome,telefone,cep,rua,bairro,cidade){
+  alert(
+    "Nome: " + nome + "\n\n" +
+    "Telefone: " + telefone + "\n\n" +
+    "CEP: " + cep + "\n" +
+    "Rua: " + rua + "\n" +
+    "Bairro: " + bairro + "\n" +
+    "Cidade: " + cidade
+  );
+}
+
+/* EXCLUIR CLIENTE */
+
+window.excluirCliente = async function(id){
+
+  const confirmar = confirm("Tem certeza que deseja excluir este cliente?");
+  if(!confirmar) return;
+
+  try{
+    const clienteRef = doc(db,"clientes",id);
+    await deleteDoc(clienteRef);
+    alert("Cliente excluído com sucesso!");
+    buscarCliente();
+  }catch(erro){
+    alert("Erro ao excluir: " + erro.message);
+  }
+
+};
 
 /* SERVIÇOS */
 
+let clienteServicoId = null;
+
 window.abrirServicos = async function(id){
+  clienteServicoId = id;
+  document.getElementById("areaServicos").style.display = "block";
+  await listarServicos();
+};
 
-clienteServicoId=id;
+window.listarServicos = async function(){
 
-mostrarAba("servicos");
+  const q = query(
+    collection(db,"servicos"),
+    where("clienteId","==",clienteServicoId)
+  );
 
-document.getElementById("areaServicos").style.display="block";
+  const querySnapshot = await getDocs(q);
+  const lista = document.getElementById("listaServicos");
+  lista.innerHTML="";
 
-listarServicos();
+  querySnapshot.forEach((docSnap)=>{
+    const s = docSnap.data();
 
-}
+lista.innerHTML += `
+  <div style="margin-top:10px; padding:10px; background:#f2f2f7; border-radius:10px;">
+    
+    <strong>${s.descricao}</strong><br><br>
 
-async function listarServicos(){
+    Início Previsto: ${s.dataInicioPrevista || "-"}<br>
+    Fim Previsto: ${s.dataFimPrevista || "-"}<br>
+    Média: ${s.mediaDias || 0} dias<br><br>
 
-const q=query(collection(db,"servicos"),where("clienteId","==",clienteServicoId));
-const snap=await getDocs(q);
+    Valor: R$ ${s.valor}<br>
+    Pago: R$ ${s.pago || 0}<br>
+    Restante: R$ ${s.restante || s.valor}<br>
+    Status: ${s.status}<br><br>
 
-listaServicos.innerHTML="";
+    <button onclick="editarServico('${docSnap.id}')">
+      Editar Serviço
+    </button>
 
-snap.forEach((docSnap)=>{
+    <button onclick="registrarPagamento('${docSnap.id}')" 
+      style="background:#007aff; margin-top:5px;">
+      Adicionar Pagamento
+    </button>
 
-const s=docSnap.data();
-
-listaServicos.innerHTML+=`
-
-<div class="card">
-
-<strong>${s.descricao}</strong><br>
-
-Valor: R$ ${s.valor}<br>
-Pago: R$ ${s.pago || 0}<br>
-Restante: R$ ${s.restante || s.valor}<br>
-Status: ${s.status}
-
-</div>
-
+  </div>
 `;
+  });
 
-});
-
-}
+};
 
 window.salvarServico = async function(){
 
-const valor=Number(valorServico.value);
+  const valor = Number(document.getElementById("valorServico").value);
+  const inicioPrev = document.getElementById("dataInicioPrevista").value;
+  const fimPrev = document.getElementById("dataFimPrevista").value;
 
-await addDoc(collection(db,"servicos"),{
+  if(!inicioPrev || !fimPrev){
+    alert("Preencha as datas!");
+    return;
+  }
 
-clienteId:clienteServicoId,
-descricao:descricaoServico.value,
-valor:valor,
-pago:0,
-restante:valor,
-status:statusServico.value
+  const mediaDias = Math.ceil(
+    (new Date(fimPrev) - new Date(inicioPrev)) /
+    (1000 * 60 * 60 * 24)
+  );
 
-});
+  try{
 
-listarServicos();
+    await addDoc(collection(db,"servicos"),{
+      clienteId: clienteServicoId,
+      descricao: document.getElementById("descricaoServico").value,
 
-}
+      valor: valor,
+      pago: 0,
+      restante: valor,
+      formaPagamento: document.getElementById("formaPagamento").value,
 
-/* FINANCEIRO */
+      status: document.getElementById("statusServico").value,
 
-window.calcularFinanceiro = async function(){
+      dataInicioPrevista: inicioPrev,
+      dataFimPrevista: fimPrev,
+      dataInicioReal: null,
+      dataFimReal: null,
+      mediaDias: mediaDias,
 
-const snap=await getDocs(collection(db,"servicos"));
+      cancelado: false
+    });
 
-let recebido=0;
-let receber=0;
+    alert("Serviço criado com sucesso!");
+    listarServicos();
 
-snap.forEach((docSnap)=>{
+  }catch(erro){
+    alert("Erro ao salvar serviço: " + erro.message);
+  }
 
-const s=docSnap.data();
+};  
 
-recebido+=s.pago || 0;
-receber+=s.restante || 0;
+// ================= EDITAR SERVIÇO =================
+window.editarServico = async function(id){
 
-});
+  const servicoRef = doc(db,"servicos",id);
+  const servicoSnap = await getDoc(servicoRef);
+  const s = servicoSnap.data();
 
-totalRecebido.innerText=recebido.toFixed(2);
-totalReceber.innerText=receber.toFixed(2);
+  const novaDescricao = prompt("Nova descrição:", s.descricao);
+  const novoValor = Number(prompt("Novo valor:", s.valor));
 
-}
+  if(!novaDescricao || !novoValor){
+    alert("Dados inválidos");
+    return;
+  }
 
-<script>
-window.mostrarAba = function(aba){
-document.querySelectorAll(".aba").forEach(el=>el.style.display="none");
-document.getElementById(aba).style.display="block";
-}
-</script>
+  if(novoValor < s.pago){
+    alert("Novo valor não pode ser menor que o já pago!");
+    return;
+  }
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+  await updateDoc(servicoRef,{
+    descricao: novaDescricao,
+    valor: novoValor,
+    restante: novoValor - s.pago
+  });
 
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
+  listarServicos();
 };
 
-const app = initializeApp(firebaseConfig);
-window.auth = getAuth(app);
-window.db = getFirestore(app);
-</script>
+// ================= REGISTRAR PAGAMENTO =================
+window.registrarPagamento = async function(id){
 
-</body>
-</html>  
-</script>
+  const servicoRef = doc(db,"servicos",id);
+  const servicoSnap = await getDoc(servicoRef);
+  const s = servicoSnap.data();
 
+  const valorNovo = Number(prompt("Valor pago:"));
+  const forma = prompt("Forma de pagamento:");
+
+  if(!valorNovo || valorNovo <= 0){
+    alert("Valor inválido");
+    return;
+  }
+
+  const novoTotal = s.pago + valorNovo;
+
+  if(novoTotal > s.valor){
+    alert("Não pode pagar mais que o valor total!");
+    return;
+  }
+
+  const novoPagamento = {
+    valor: valorNovo,
+    forma: forma,
+    data: new Date().toISOString()
+  };
+
+  await updateDoc(servicoRef,{
+    pago: novoTotal,
+    restante: s.valor - novoTotal,
+    pagamentos: [...(s.pagamentos || []), novoPagamento]
+  });
+
+  listarServicos();
+};
+  
+/* CEP AUTOMÁTICO */
+
+const cepInput = document.getElementById("cep");
+const ruaInput = document.getElementById("rua");
+const bairroInput = document.getElementById("bairro");
+const cidadeInput = document.getElementById("cidade");
+
+cepInput.addEventListener("blur", async () => {
+  const valor = cepInput.value.replace(/\D/g, "");
+  if (valor.length === 8) {
+    try {
+      const resposta = await fetch(`https://viacep.com.br/ws/${valor}/json/`);
+      const dados = await resposta.json();
+      ruaInput.value = dados.logradouro || "";
+      bairroInput.value = dados.bairro || "";
+      cidadeInput.value = dados.localidade || "";
+    } catch {
+      alert("Erro ao buscar CEP");
+    }
+  }
+});
+
+/* TELEFONE AUTOMÁTICO */
+
+const telefoneInput = document.getElementById("telefone");
+
+telefoneInput.addEventListener("input", function(){
+  let t = telefoneInput.value.replace(/\D/g,"");
+
+  if (t.length > 10) {
+    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2,3)} ${t.slice(3,7)}-${t.slice(7,11)}`;
+  } else if (t.length > 6) {
+    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2,6)}-${t.slice(6)}`;
+  } else if (t.length > 2) {
+    telefoneInput.value = `(${t.slice(0,2)}) ${t.slice(2)}`;
+  } else {
+    telefoneInput.value = t;
+  }
+});
+  
+</script>
 </body>
 </html>
-```
