@@ -64,6 +64,21 @@ h2{
 <div id="appScreen" style="display:none;">
 
 <div class="card">
+<h2>Relatório Financeiro</h2>
+
+<div id="relatorioFinanceiro">
+
+💰 Total Serviços: R$ 0<br>
+💵 Total Recebido: R$ 0<br>
+⚠️ Total Pendente: R$ 0
+
+</div>
+
+<button onclick="gerarRelatorio()">Atualizar Relatório</button>
+
+</div>
+  
+<div class="card">
 <h2>Cadastro Cliente</h2>
 <input type="text" id="nome" placeholder="Nome">
 <input type="text" id="telefone" placeholder="Telefone">
@@ -431,6 +446,35 @@ window.salvarServico = async function(){
   }
 
 };  
+
+window.gerarRelatorio = async function(){
+
+  const querySnapshot = await getDocs(collection(db,"servicos"));
+
+  let totalServicos = 0;
+  let totalPago = 0;
+  let totalRestante = 0;
+
+  querySnapshot.forEach((docSnap)=>{
+
+    const s = docSnap.data();
+
+    totalServicos += Number(s.valor || 0);
+    totalPago += Number(s.pago || 0);
+    totalRestante += Number(s.restante || 0);
+
+  });
+
+  document.getElementById("relatorioFinanceiro").innerHTML = `
+  
+  💰 Total Serviços: R$ ${totalServicos.toFixed(2)}<br>
+  💵 Total Recebido: R$ ${totalPago.toFixed(2)}<br>
+  ⚠️ Total Pendente: R$ ${totalRestante.toFixed(2)}
+
+  `;
+
+};
+  
 
 // ================= EDITAR SERVIÇO =================
 window.editarServico = async function(id){
