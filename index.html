@@ -238,37 +238,6 @@ window.salvarCliente = async function(){
 
     }
 
-    nome.value="";
-    telefone.value="";
-    cep.value="";
-    tipo.value="";
-    numero.value="";
-    complemento.value="";
-    rua.value="";
-    bairro.value="";
-    cidade.value="";
-
-  }catch(erro){
-    alert("Erro: " + erro.message);
-  }
-
-}
-
-    if(clienteEditandoId){
-
-      const clienteRef = doc(db,"clientes",clienteEditandoId);
-      await updateDoc(clienteRef,dados);
-
-      alert("Cliente atualizado com sucesso!");
-      clienteEditandoId = null;
-
-    }else{
-
-      await addDoc(collection(db,"clientes"),dados);
-      alert("Cliente salvo com sucesso!");
-
-    }
-
     // limpar formulário
     nome.value="";
     telefone.value="";
@@ -283,8 +252,8 @@ window.salvarCliente = async function(){
   }catch(erro){
     alert("Erro: " + erro.message);
   }
+
 }
-  
 /* BUSCAR CLIENTE */
 
 window.buscarCliente = async function(){
