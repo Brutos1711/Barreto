@@ -193,19 +193,30 @@ onAuthStateChanged(auth,(user)=>{
 /* SALVAR CLIENTE */
 
 window.salvarCliente = async function(){
-  try{
 
-    const dados = {
-      nome:nome.value,
-      telefone:telefone.value,
-      cep:cep.value,
-      tipo:tipo.value,
-      numero:numero.value,
-      complemento:complemento.value,
-      rua:rua.value,
-      bairro:bairro.value,
-      cidade:cidade.value
-    };
+  const q = query(
+    collection(db,"clientes"),
+    where("telefone","==",telefone.value)
+  );
+
+  const verificar = await getDocs(q);
+
+  if(!verificar.empty && !clienteEditandoId){
+    alert("Já existe um cliente com esse telefone.");
+    return;
+  }
+
+  const dados = {
+    nome:nome.value,
+    telefone:telefone.value,
+    cep:cep.value,
+    tipo:tipo.value,
+    numero:numero.value,
+    complemento:complemento.value,
+    rua:rua.value,
+    bairro:bairro.value,
+    cidade:cidade.value
+  };
 
     if(clienteEditandoId){
 
