@@ -156,6 +156,20 @@ Barreto App
 
 </div>
 
+<div id="paginaCliente" class="card pagina">
+
+<h2 id="nomeClienteTitulo"></h2>
+
+<button onclick="abrirServicoCliente()">
+Adicionar serviço
+</button>
+
+<h3>Histórico de serviços</h3>
+
+<div id="historicoServicos"></div>
+
+</div>
+  
 <div id="paginaBuscar" class="card pagina">
 
 <h2>Buscar Cliente</h2>
@@ -235,7 +249,6 @@ document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 
 if(p=="clientes"){
 document.getElementById("paginaClientes").style.display="block"
-listarClientes()
 }
 
 if(p=="buscar"){
@@ -253,7 +266,7 @@ document.getElementById("paginaRelatorios").style.display="block"
 toggleMenu()
 
 }
-
+  
 </script>
 
 <script type="module">
@@ -400,6 +413,23 @@ let pagamento = document.getElementById("formaPagamento").value
 let status = document.getElementById("statusServico").value
 let statusPagamento = document.getElementById("statusPagamento").value
 
+if(window.servicoEditando){
+
+await updateDoc(doc(db,"servicos",window.servicoEditando),{
+
+cliente,
+descricao,
+valor:Number(valor),
+pagamento,
+status,
+statusPagamento
+
+})
+
+window.servicoEditando = null
+
+}else{
+
 await addDoc(collection(db,"servicos"),{
 
 cliente,
@@ -411,9 +441,11 @@ statusPagamento
 
 })
 
-alert("Serviço salvo")
+}
 
 listarServicos(cliente)
+
+alert("Serviço salvo")
 
 }
 
@@ -429,12 +461,14 @@ snap.forEach(doc=>{
 
 let s = doc.data()
 
-total += Number(s.valor)
+let valor = Number(s.valor)
+
+total += valor
 
 if(s.statusPagamento == "Pago"){
-recebido += Number(s.valor)
+recebido += valor
 }else{
-receber += Number(s.valor)
+receber += valor
 }
 
 })
@@ -450,7 +484,7 @@ document.getElementById("relatorio").innerHTML = `
 `
 
 }
-
+  
 window.excluirServico = async function(id,cliente){
 
 await deleteDoc(doc(db,"servicos",id))
@@ -459,6 +493,14 @@ listarServicos(cliente)
 
 }
 
+window.abrirServicoCliente = function(){
+
+document.getElementById("clienteServico").value = window.clienteAtual
+
+abrirPagina("servicos")
+
+}
+  
 window.editarServico = function(id,descricao,valor,status){
 
 document.getElementById("descricaoServico").value = descricao
@@ -490,18 +532,70 @@ window.clienteEditando = id
   
 window.abrirCliente = function(nome){
 
-document.getElementById("clienteServico").value = nome
+window.clienteAtual = nome
 
-abrirPagina("servicos")
+document.getElementById("nomeClienteTitulo").innerText = "Cliente: " + nome
 
-listarServicos(nome)
+document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 
+document.getElementById("paginaCliente").style.display="block"
+
+listarHistorico(nome)
+
+}
 /* FECHAR MENU */
 
 document.getElementById("menu").classList.remove("active")
 
 }
 
+window.listarHistorico = async function(cliente){
+
+let snap = await getDocs(collection(db,"servicos"))
+
+let html=""
+
+snap.forEach(docSnap=>{
+
+let s = docSnap.data()
+let id = docSnap.id
+
+if(s.cliente == cliente){
+
+html += `
+
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<b>${s.descricao}</b><br>
+
+💰 R$ ${s.valor}<br>
+
+📊 ${s.status}<br>
+
+💳 ${s.statusPagamento || ""}
+
+<br>
+
+<button onclick="editarServico('${id}','${s.descricao}','${s.valor}','${s.status}')">
+Editar
+</button>
+
+<button onclick="excluirServico('${id}','${cliente}')">
+Excluir
+</button>
+
+</div>
+
+`
+
+}
+
+})
+
+document.getElementById("historicoServicos").innerHTML = html
+
+}
+  
 window.listarServicos = async function(cliente){
 
 let snap = await getDocs(collection(db,"servicos"))
