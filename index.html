@@ -148,8 +148,7 @@ Barreto App
 <input id="nome" placeholder="Nome">
 <input id="telefone" placeholder="Telefone">
 
-<input id="cep" placeholder="CEP" onblur="buscarCEP()">
-<input id="rua" placeholder="Rua">
+<input id="cep" placeholder="CEP" oninput="mascaraCEP()" onblur="buscarCEP()"><input id="rua" placeholder="Rua">
 <input id="bairro" placeholder="Bairro">
 <input id="cidade" placeholder="Cidade">
   
@@ -172,9 +171,12 @@ Barreto App
 </div>
 
 <div id="paginaServicos" class="card pagina">
-
+  
 <h2>Serviço</h2>
 
+<h3>Serviços do cliente</h3>
+<div id="listaServicos"></div>  
+  
 <input id="clienteServico" placeholder="Nome cliente">
 
 <input id="descricaoServico" placeholder="Descrição">
@@ -423,9 +425,12 @@ snap.forEach(doc=>{
 let c = doc.data()
 
 html += `
-<div style="border-bottom:1px solid #eee;padding:10px">
+<div onclick="abrirCliente('${c.nome}')"
+style="border-bottom:1px solid #eee;padding:12px;cursor:pointer">
+
 <b>${c.nome}</b><br>
-${c.telefone}
+📞 ${c.telefone}
+
 </div>
 `
 
@@ -435,14 +440,55 @@ document.getElementById("listaClientes").innerHTML = html
 
 }
 
+window.abrirCliente = function(nome){
+
+document.getElementById("clienteServico").value = nome
+
+abrirPagina("servicos")
+
+listarServicos(nome)
+
+}
+
+window.listarServicos = async function(cliente){
+
+let snap = await getDocs(collection(db,"servicos"))
+
+let html=""
+
+snap.forEach(doc=>{
+
+let s = doc.data()
+
+if(s.cliente == cliente){
+
+html += `
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<b>${s.descricao}</b><br>
+💰 R$ ${s.valor}<br>
+💳 ${s.pagamento}
+
+</div>
+`
+
+}
+
+})
+
+document.getElementById("listaServicos").innerHTML = html
+
+}
+  
 window.buscarCEP = async function(){
 
-let cep = document.getElementById("cep").value.replace(/\D/g, "")
+let cep = document.getElementById("cep").value.replace(/\D/g,"")
 
 if(cep.length != 8){
-alert("CEP inválido")
 return
 }
+
+try{
 
 let res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
 let dados = await res.json()
@@ -455,6 +501,23 @@ return
 document.getElementById("rua").value = dados.logradouro || ""
 document.getElementById("bairro").value = dados.bairro || ""
 document.getElementById("cidade").value = dados.localidade || ""
+
+}catch(e){
+
+alert("Erro ao buscar CEP")
+
+}
+
+}
+
+window.mascaraCEP = function(){
+
+let cep = document.getElementById("cep")
+
+cep.value = cep.value
+.replace(/\D/g,"")
+.replace(/(\d{5})(\d)/,"$1-$2")
+.slice(0,9)
 
 }
   
