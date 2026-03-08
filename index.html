@@ -542,13 +542,11 @@ document.getElementById("paginaCliente").style.display="block"
 
 listarHistorico(nome)
 
-}
 /* FECHAR MENU */
-
 document.getElementById("menu").classList.remove("active")
 
 }
-
+  
 window.listarHistorico = async function(cliente){
 
 let snap = await getDocs(collection(db,"servicos"))
