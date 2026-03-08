@@ -191,7 +191,7 @@ Nenhum serviço ainda
 
 <h2>Buscar Cliente</h2>
 
-<input id="busca" placeholder="Nome">
+<input id="busca" placeholder="Nome do cliente" oninput="buscarCliente()">
 
 <button onclick="buscarCliente()">Buscar</button>
 
@@ -502,14 +502,50 @@ document.getElementById("relatorio").innerHTML = `
 
 }
   
-window.excluirServico = async function(id,cliente){
+window.excluirServico = async function(id){
+
+if(confirm("Deseja excluir o serviço?")){
 
 await deleteDoc(doc(db,"servicos",id))
 
-listarServicos(cliente)
+listarServicos()
 
 }
 
+}
+
+window.adicionarPagamento = async function(id){
+
+let valor = parseFloat(prompt("Valor do pagamento"))
+
+let ref = doc(db,"servicos",id)
+
+let snap = await getDoc(ref)
+
+let dados = snap.data()
+
+let total = dados.valorTotal
+let pago = dados.valorPago || 0
+
+let novoTotal = pago + valor
+
+if(novoTotal > total){
+
+alert("Pagamento maior que o valor do serviço!")
+return
+
+}
+
+await updateDoc(ref,{
+valorPago: novoTotal
+})
+
+alert("Pagamento registrado")
+
+listarServicos()
+
+}
+  
 window.abrirServicoCliente = function(){
 
 document.getElementById("clienteServico").value = window.clienteAtual
@@ -611,36 +647,65 @@ document.getElementById("historicoServicos").innerHTML = html
 
 }
   
-window.listarServicos = async function(cliente){
+window.listarServicos = async function(){
 
 let snap = await getDocs(collection(db,"servicos"))
 
 let html=""
 
-snap.forEach(doc=>{
+snap.forEach(docSnap=>{
 
-let s = doc.data()
+let s = docSnap.data()
+let id = docSnap.id
 
-if(s.cliente == cliente){
+let status=""
+
+if(s.valorPago >= s.valorTotal){
+status="🟢 Pago"
+}
+else if(s.valorPago > 0){
+status="🟡 Parcial"
+}
+else{
+status="🔴 Pendente"
+}
 
 html += `
+
 <div style="border-bottom:1px solid #eee;padding:10px">
 
-<b>${s.descricao}</b><br>
-💰 R$ ${s.valor}<br>
-💳 ${s.pagamento}
+<b>${s.servico}</b><br>
+
+Valor: ${s.valorTotal}<br>
+
+Pago: ${s.valorPago || 0} / ${s.valorTotal}<br>
+
+Status: ${status}
+
+<br><br>
+
+<button onclick="adicionarPagamento('${id}')">
+Pagamento
+</button>
+
+<button onclick="editarServico('${id}')">
+Editar
+</button>
+
+<button onclick="excluirServico('${id}')">
+Excluir
+</button>
 
 </div>
-`
 
-}
+`
 
 })
 
-document.getElementById("listaServicos").innerHTML = html
+document.getElementById("historicoServicos").innerHTML = html
 
 }
-
+  
 window.listarClientes = async function(){
 
 let snap = await getDocs(collection(db,"clientes"))
