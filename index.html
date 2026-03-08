@@ -225,35 +225,24 @@ document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 if(p=="clientes"){
 document.getElementById("paginaClientes").style.display="block"
 listarClientes()
-}if(p=="buscar")document.getElementById("paginaBuscar").style.display="block"
-if(p=="servicos")document.getElementById("paginaServicos").style.display="block"
-if(p=="relatorios")document.getElementById("paginaRelatorios").style.display="block"
+}
+
+if(p=="buscar"){
+document.getElementById("paginaBuscar").style.display="block"
+}
+
+if(p=="servicos"){
+document.getElementById("paginaServicos").style.display="block"
+}
+
+if(p=="relatorios"){
+document.getElementById("paginaRelatorios").style.display="block"
+}
 
 toggleMenu()
 
 }
 
-let snap = await getDocs(collection(db,"clientes"))
-
-let html=""
-
-snap.forEach(doc=>{
-
-let c = doc.data()
-
-html += `
-<div style="border-bottom:1px solid #eee;padding:10px">
-<b>${c.nome}</b><br>
-${c.telefone}
-</div>
-`
-
-})
-
-document.getElementById("listaClientes").innerHTML = html
-
-}
-  
 </script>
 
 <script type="module">
