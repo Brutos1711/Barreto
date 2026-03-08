@@ -141,32 +141,49 @@ Barreto App
 
 <div id="appScreen" style="display:none;">
 
-<div id="paginaClientes" class="card pagina">
+<!-- PAGINA CADASTRAR CLIENTE -->
+<div id="paginaClientes" class="card pagina" style="display:none;">
 
 <h2>Cadastro Cliente</h2>
 
 <input id="nome" placeholder="Nome">
 <input id="telefone" placeholder="Telefone">
 
-<input id="cep" placeholder="CEP" oninput="mascaraCEP()" onblur="buscarCEP()"><input id="rua" placeholder="Rua">
+<br><br>
+
+<input id="cep" placeholder="CEP" oninput="mascaraCEP()" onblur="buscarCEP()">
+
+<br><br>
+
+<input id="rua" placeholder="Rua">
 <input id="bairro" placeholder="Bairro">
 <input id="cidade" placeholder="Cidade">
-  
+
+<br><br>
+
 <button onclick="salvarCliente()">Salvar</button>
 
 </div>
 
-<div id="paginaCliente" class="card pagina">
 
-<h2 id="nomeClienteTitulo"></h2>
+<!-- PAGINA DO CLIENTE -->
+<div id="paginaCliente" class="card pagina" style="display:none;">
+
+<h2 id="nomeClienteTitulo">Cliente</h2>
 
 <button onclick="abrirServicoCliente()">
 Adicionar serviço
 </button>
 
+<br><br>
+
 <h3>Histórico de serviços</h3>
 
-<div id="historicoServicos"></div>
+<div id="historicoServicos">
+
+Nenhum serviço ainda
+
+</div>
 
 </div>
   
@@ -212,8 +229,8 @@ Adicionar serviço
 <option value="Finalizado">Finalizado</option>
 </select>
   
-<button onclick="vico()">Salvar Serviço</button>
-
+<button onclick="salvarServico()">Salvar Serviço</button>
+  
 </div>
 
 <div id="paginaRelatorios" class="card pagina">
