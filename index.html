@@ -154,8 +154,6 @@ Barreto App
   
 <button onclick="salvarCliente()">Salvar</button>
 
-<h3>Clientes cadastrados</h3>
-<div id="listaClientes"></div>
 </div>
 
 <div id="paginaBuscar" class="card pagina">
@@ -189,13 +187,18 @@ Barreto App
 <option>Dinheiro</option>
 </select>
 
+<select id="statusPagamento">
+<option value="Pago">Pago</option>
+<option value="A receber">A receber</option>
+</select>
+  
 <select id="statusServico">
 <option value="Em andamento">Em andamento</option>
 <option value="Pronto">Pronto</option>
 <option value="Finalizado">Finalizado</option>
 </select>
   
-<button onclick="salvarServico()">Salvar Serviço</button>
+<button onclick="vico()">Salvar Serviço</button>
 
 </div>
 
@@ -357,109 +360,24 @@ listarClientes()
 
 window.buscarCliente = async function(){
 
-let busca = document.getElementById("busca").value
+let busca = document.getElementById("busca").value.toLowerCase()
 
 let snap = await getDocs(collection(db,"clientes"))
 
 let html=""
 
-snap.forEach(doc=>{
-
-let c = doc.data()
-
-if(c.nome.toLowerCase().includes(busca.toLowerCase())){
-
-html += c.nome + " - " + c.telefone + "<br>"
-
-}
-
-})
-
-document.getElementById("resultado").innerHTML=html
-
-}
-
-
-window.salvarServico = async function(){
-
-let cliente = document.getElementById("clienteServico").value
-let descricao = document.getElementById("descricaoServico").value
-let valor = document.getElementById("valorServico").value
-let pagamento = document.getElementById("formaPagamento").value
-let status = document.getElementById("statusServico").value
-
-await addDoc(collection(db,"servicos"),{
-
-cliente,
-descricao,
-valor:Number(valor),
-pagamento,
-status
-
-})
-
-alert("Serviço salvo")
-
-}
-
-
-window.gerarRelatorio = async function(){
-
-let snap = await getDocs(collection(db,"servicos"))
-
-let total = 0
-let quantidade = 0
-
-snap.forEach(doc=>{
-
-let s = doc.data()
-
-total += Number(s.valor)
-quantidade++
-
-})
-
-document.getElementById("relatorio").innerHTML = `
-
-💰 Total faturado: R$ ${total}<br>
-📦 Serviços cadastrados: ${quantidade}
-
-`
-
-}
-
-window.listarServicos = async function(cliente){
-
-let snap = await getDocs(collection(db,"servicos"))
-
-let html=""
-
 snap.forEach(docSnap=>{
 
-let s = docSnap.data()
-let id = docSnap.id
+let c = docSnap.data()
 
-if(s.cliente == cliente){
+if(c.nome.toLowerCase().includes(busca)){
 
 html += `
 
-<div style="border-bottom:1px solid #eee;padding:10px">
+<div style="padding:10px;border-bottom:1px solid #eee">
 
-<b>${s.descricao}</b><br>
-
-💰 R$ ${s.valor}<br>
-
-💳 ${s.pagamento}<br>
-
-📊 Status: ${s.status || "Em andamento"}<br>
-
-<button onclick="editarServico('${id}','${s.descricao}','${s.valor}','${s.status || "Em andamento"}')">
-Editar
-</button>
-
-<button onclick="excluirServico('${id}','${cliente}')">
-Excluir
-</button>
+<b onclick="abrirCliente('${c.nome}')">${c.nome}</b><br>
+${c.telefone}
 
 </div>
 
@@ -469,10 +387,70 @@ Excluir
 
 })
 
-document.getElementById("listaServicos").innerHTML = html
+document.getElementById("resultado").innerHTML=html
 
 }
-  
+
+window.salvarServico = async function(){
+
+let cliente = document.getElementById("clienteServico").value
+let descricao = document.getElementById("descricaoServico").value
+let valor = document.getElementById("valorServico").value
+let pagamento = document.getElementById("formaPagamento").value
+let status = document.getElementById("statusServico").value
+let statusPagamento = document.getElementById("statusPagamento").value
+
+await addDoc(collection(db,"servicos"),{
+
+cliente,
+descricao,
+valor:Number(valor),
+pagamento,
+status,
+statusPagamento
+
+})
+
+alert("Serviço salvo")
+
+listarServicos(cliente)
+
+}
+
+window.gerarRelatorio = async function(){
+
+let snap = await getDocs(collection(db,"servicos"))
+
+let total = 0
+let recebido = 0
+let receber = 0
+
+snap.forEach(doc=>{
+
+let s = doc.data()
+
+total += Number(s.valor)
+
+if(s.statusPagamento == "Pago"){
+recebido += Number(s.valor)
+}else{
+receber += Number(s.valor)
+}
+
+})
+
+document.getElementById("relatorio").innerHTML = `
+
+💰 Total serviços: R$ ${total}<br><br>
+
+✅ Recebido: R$ ${recebido}<br><br>
+
+🕒 A receber: R$ ${receber}
+
+`
+
+}
+
 window.excluirServico = async function(id,cliente){
 
 await deleteDoc(doc(db,"servicos",id))
