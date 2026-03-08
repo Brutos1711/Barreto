@@ -148,8 +148,15 @@ Barreto App
 <input id="nome" placeholder="Nome">
 <input id="telefone" placeholder="Telefone">
 
+<input id="cep" placeholder="CEP" onblur="buscarCEP()">
+<input id="rua" placeholder="Rua">
+<input id="bairro" placeholder="Bairro">
+<input id="cidade" placeholder="Cidade">
+  
 <button onclick="salvarCliente()">Salvar</button>
 
+<h3>Clientes cadastrados</h3>
+<div id="listaClientes"></div>
 </div>
 
 <div id="paginaBuscar" class="card pagina">
@@ -190,8 +197,8 @@ Barreto App
 
 <div id="relatorio">
 
-Total serviços: R$ 0<br>
-Recebido: R$ 0
+💰 Total faturado: R$ 0<br>
+📦 Serviços cadastrados: 0
 
 </div>
 
@@ -215,8 +222,10 @@ function abrirPagina(p){
 
 document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 
-if(p=="clientes")document.getElementById("paginaClientes").style.display="block"
-if(p=="buscar")document.getElementById("paginaBuscar").style.display="block"
+if(p=="clientes"){
+document.getElementById("paginaClientes").style.display="block"
+listarClientes()
+}if(p=="buscar")document.getElementById("paginaBuscar").style.display="block"
 if(p=="servicos")document.getElementById("paginaServicos").style.display="block"
 if(p=="relatorios")document.getElementById("paginaRelatorios").style.display="block"
 
@@ -224,6 +233,27 @@ toggleMenu()
 
 }
 
+let snap = await getDocs(collection(db,"clientes"))
+
+let html=""
+
+snap.forEach(doc=>{
+
+let c = doc.data()
+
+html += `
+<div style="border-bottom:1px solid #eee;padding:10px">
+<b>${c.nome}</b><br>
+${c.telefone}
+</div>
+`
+
+})
+
+document.getElementById("listaClientes").innerHTML = html
+
+}
+  
 </script>
 
 <script type="module">
@@ -299,13 +329,25 @@ window.salvarCliente = async function(){
 
 let nome = document.getElementById("nome").value
 let telefone = document.getElementById("telefone").value
+let cep = document.getElementById("cep").value
+let rua = document.getElementById("rua").value
+let bairro = document.getElementById("bairro").value
+let cidade = document.getElementById("cidade").value
 
 await addDoc(collection(db,"clientes"),{
+
 nome,
-telefone
+telefone,
+cep,
+rua,
+bairro,
+cidade
+
 })
 
 alert("Cliente salvo")
+
+listarClientes()
 
 }
 
@@ -361,20 +403,63 @@ window.gerarRelatorio = async function(){
 let snap = await getDocs(collection(db,"servicos"))
 
 let total = 0
+let quantidade = 0
 
 snap.forEach(doc=>{
 
 let s = doc.data()
 
 total += Number(s.valor)
+quantidade++
 
 })
 
-document.getElementById("relatorio").innerHTML = 
-"Total serviços: R$ "+total
+document.getElementById("relatorio").innerHTML = `
+
+💰 Total faturado: R$ ${total}<br>
+📦 Serviços cadastrados: ${quantidade}
+
+`
 
 }
 
+window.listarClientes = async function(){
+
+let snap = await getDocs(collection(db,"clientes"))
+
+let html=""
+
+snap.forEach(doc=>{
+
+let c = doc.data()
+
+html += `
+<div style="border-bottom:1px solid #eee;padding:10px">
+<b>${c.nome}</b><br>
+${c.telefone}
+</div>
+`
+
+})
+
+document.getElementById("listaClientes").innerHTML = html
+
+}
+
+window.buscarCEP = async function(){
+
+let cep = document.getElementById("cep").value
+
+let res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+
+let dados = await res.json()
+
+document.getElementById("rua").value = dados.logradouro
+document.getElementById("bairro").value = dados.bairro
+document.getElementById("cidade").value = dados.localidade
+
+}
+  
 </script>
 
 </body>
