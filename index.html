@@ -14,8 +14,6 @@ font-family:-apple-system,BlinkMacSystemFont;
 background:#f2f2f7;
 }
 
-/* TOPO */
-
 .topbar{
 background:#1e293b;
 color:white;
@@ -30,8 +28,6 @@ font-size:22px;
 margin-right:15px;
 cursor:pointer;
 }
-
-/* MENU */
 
 .sidebar{
 position:fixed;
@@ -64,15 +60,11 @@ background:#334155;
 left:0;
 }
 
-/* CONTAINER */
-
 .container{
 max-width:430px;
 margin:auto;
 padding:20px;
 }
-
-/* CARD */
 
 .card{
 background:white;
@@ -112,12 +104,10 @@ display:none;
 <body>
 
 <div id="menu" class="sidebar">
-
 <button onclick="abrirPagina('clientes')">Clientes</button>
 <button onclick="abrirPagina('buscar')">Buscar Cliente</button>
 <button onclick="abrirPagina('servicos')">Serviços</button>
 <button onclick="abrirPagina('relatorios')">Relatórios</button>
-
 </div>
 
 <div class="topbar">
@@ -141,71 +131,60 @@ Barreto App
 
 <div id="appScreen" style="display:none;">
 
-<!-- PAGINA CADASTRAR CLIENTE -->
-<div id="paginaClientes" class="card pagina" style="display:none;">
+<!-- CLIENTES -->
+
+<div id="paginaClientes" class="card pagina">
 
 <h2>Cadastro Cliente</h2>
 
 <input id="nome" placeholder="Nome">
 <input id="telefone" placeholder="Telefone">
 
-<br><br>
-
 <input id="cep" placeholder="CEP" oninput="mascaraCEP()" onblur="buscarCEP()">
-
-<br><br>
 
 <input id="rua" placeholder="Rua">
 <input id="bairro" placeholder="Bairro">
 <input id="cidade" placeholder="Cidade">
 
-<br><br>
-
 <button onclick="salvarCliente()">Salvar</button>
+
+<h3>Clientes cadastrados</h3>
+<div id="listaClientes"></div>
 
 </div>
 
+<!-- CLIENTE -->
 
-<!-- PAGINA DO CLIENTE -->
-<div id="paginaCliente" class="card pagina" style="display:none;">
+<div id="paginaCliente" class="card pagina">
 
 <h2 id="nomeClienteTitulo">Cliente</h2>
 
-<button onclick="abrirServicoCliente()">
-Adicionar serviço
-</button>
-
-<br><br>
+<button onclick="abrirServicoCliente()">Adicionar serviço</button>
 
 <h3>Histórico de serviços</h3>
 
-<div id="historicoServicos">
-
-Nenhum serviço ainda
+<div id="historicoServicos">Nenhum serviço ainda</div>
 
 </div>
 
-</div>
-  
+<!-- BUSCAR -->
+
 <div id="paginaBuscar" class="card pagina">
 
 <h2>Buscar Cliente</h2>
 
 <input id="busca" placeholder="Nome do cliente" oninput="buscarCliente()">
 
-<button onclick="buscarCliente()">Buscar</button>
-
 <div id="resultado"></div>
 
 </div>
 
+<!-- SERVIÇOS -->
+
 <div id="paginaServicos" class="card pagina">
-  
+
 <h2>Serviço</h2>
 
-<h3>Serviços do cliente</h3>
-<div id="listaServicos"></div>  
-  
 <input id="clienteServico" placeholder="Nome cliente">
 
 <input id="descricaoServico" placeholder="Descrição">
@@ -222,26 +201,25 @@ Nenhum serviço ainda
 <option value="Pago">Pago</option>
 <option value="A receber">A receber</option>
 </select>
-  
+
 <select id="statusServico">
 <option value="Em andamento">Em andamento</option>
 <option value="Pronto">Pronto</option>
 <option value="Finalizado">Finalizado</option>
 </select>
-  
+
 <button onclick="salvarServico()">Salvar Serviço</button>
-  
+
 </div>
+
+<!-- RELATORIO -->
 
 <div id="paginaRelatorios" class="card pagina">
 
 <h2>Financeiro</h2>
 
 <div id="relatorio">
-
-💰 Total faturado: R$ 0<br>
-📦 Serviços cadastrados: 0
-
+💰 Total faturado: R$ 0
 </div>
 
 <button onclick="gerarRelatorio()">Atualizar</button>
@@ -280,15 +258,12 @@ if(p=="relatorios"){
 document.getElementById("paginaRelatorios").style.display="block"
 }
 
-/* FECHAR MENU */
+/* FECHA MENU AUTOMATICO */
+
 document.getElementById("menu").classList.remove("active")
 
 }
 
-toggleMenu()
-
-}
-  
 </script>
 
 <script type="module">
