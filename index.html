@@ -189,6 +189,12 @@ Barreto App
 <option>Dinheiro</option>
 </select>
 
+<select id="statusServico">
+<option value="Em andamento">Em andamento</option>
+<option value="Pronto">Pronto</option>
+<option value="Finalizado">Finalizado</option>
+</select>
+  
 <button onclick="salvarServico()">Salvar Serviço</button>
 
 </div>
@@ -262,7 +268,10 @@ import {
 getFirestore,
 collection,
 addDoc,
-getDocs
+getDocs,
+doc,
+updateDoc,
+deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
 
@@ -325,18 +334,21 @@ let rua = document.getElementById("rua").value
 let bairro = document.getElementById("bairro").value
 let cidade = document.getElementById("cidade").value
 
-await addDoc(collection(db,"clientes"),{
+if(window.clienteEditando){
 
-nome,
-telefone,
-cep,
-rua,
-bairro,
-cidade
-
+await updateDoc(doc(db,"clientes",window.clienteEditando),{
+nome,telefone,cep,rua,bairro,cidade
 })
 
-alert("Cliente salvo")
+window.clienteEditando=null
+
+}else{
+
+await addDoc(collection(db,"clientes"),{
+nome,telefone,cep,rua,bairro,cidade
+})
+
+}
 
 listarClientes()
 
@@ -374,13 +386,15 @@ let cliente = document.getElementById("clienteServico").value
 let descricao = document.getElementById("descricaoServico").value
 let valor = document.getElementById("valorServico").value
 let pagamento = document.getElementById("formaPagamento").value
+let status = document.getElementById("statusServico").value
 
 await addDoc(collection(db,"servicos"),{
 
 cliente,
 descricao,
 valor:Number(valor),
-pagamento
+pagamento,
+status
 
 })
 
@@ -414,32 +428,88 @@ document.getElementById("relatorio").innerHTML = `
 
 }
 
-window.listarClientes = async function(){
+window.listarServicos = async function(cliente){
 
-let snap = await getDocs(collection(db,"clientes"))
+let snap = await getDocs(collection(db,"servicos"))
 
 let html=""
 
-snap.forEach(doc=>{
+snap.forEach(docSnap=>{
 
-let c = doc.data()
+let s = docSnap.data()
+let id = docSnap.id
+
+if(s.cliente == cliente){
 
 html += `
-<div onclick="abrirCliente('${c.nome}')"
-style="border-bottom:1px solid #eee;padding:12px;cursor:pointer">
 
-<b>${c.nome}</b><br>
-📞 ${c.telefone}
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<b>${s.descricao}</b><br>
+
+💰 R$ ${s.valor}<br>
+
+💳 ${s.pagamento}<br>
+
+📊 Status: ${s.status || "Em andamento"}<br>
+
+<button onclick="editarServico('${id}','${s.descricao}','${s.valor}','${s.status || "Em andamento"}')">
+Editar
+</button>
+
+<button onclick="excluirServico('${id}','${cliente}')">
+Excluir
+</button>
 
 </div>
+
 `
-
-})
-
-document.getElementById("listaClientes").innerHTML = html
 
 }
 
+})
+
+document.getElementById("listaServicos").innerHTML = html
+
+}
+  
+window.excluirServico = async function(id,cliente){
+
+await deleteDoc(doc(db,"servicos",id))
+
+listarServicos(cliente)
+
+}
+
+window.editarServico = function(id,descricao,valor,status){
+
+document.getElementById("descricaoServico").value = descricao
+document.getElementById("valorServico").value = valor
+document.getElementById("statusServico").value = status
+
+window.servicoEditando = id
+
+}
+  
+window.excluirCliente = async function(id){
+
+if(!confirm("Excluir cliente?")) return
+
+await deleteDoc(doc(db,"clientes",id))
+
+listarClientes()
+
+}
+
+window.editarCliente = function(id,nome,telefone){
+
+document.getElementById("nome").value = nome
+document.getElementById("telefone").value = telefone
+
+window.clienteEditando = id
+
+}
+  
 window.abrirCliente = function(nome){
 
 document.getElementById("clienteServico").value = nome
@@ -481,6 +551,43 @@ html += `
 })
 
 document.getElementById("listaServicos").innerHTML = html
+
+}
+
+window.listarClientes = async function(){
+
+let snap = await getDocs(collection(db,"clientes"))
+
+let html=""
+
+snap.forEach(docSnap=>{
+
+let c = docSnap.data()
+let id = docSnap.id
+
+html += `
+
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<b onclick="abrirCliente('${c.nome}')">${c.nome}</b><br>
+
+${c.telefone}<br>
+
+<button onclick="editarCliente('${id}','${c.nome}','${c.telefone}')">
+Editar
+</button>
+
+<button onclick="excluirCliente('${id}')">
+Excluir
+</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("listaClientes").innerHTML = html
 
 }
   
