@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -13,7 +14,7 @@ font-family:-apple-system,BlinkMacSystemFont;
 background:#f2f2f7;
 }
 
-/* BARRA SUPERIOR */
+/* TOPO */
 
 .topbar{
 background:#1e293b;
@@ -30,7 +31,7 @@ margin-right:15px;
 cursor:pointer;
 }
 
-/* MENU LATERAL */
+/* MENU */
 
 .sidebar{
 position:fixed;
@@ -110,8 +111,6 @@ display:none;
 
 <body>
 
-<!-- MENU LATERAL -->
-
 <div id="menu" class="sidebar">
 
 <button onclick="abrirPagina('clientes')">Clientes</button>
@@ -121,16 +120,12 @@ display:none;
 
 </div>
 
-<!-- BARRA SUPERIOR -->
-
 <div class="topbar">
 <span class="menuBtn" onclick="toggleMenu()">☰</span>
 Barreto App
 </div>
 
 <div class="container">
-
-<!-- LOGIN -->
 
 <div id="loginScreen" class="card">
 
@@ -144,59 +139,38 @@ Barreto App
 
 </div>
 
-<!-- APP -->
-
 <div id="appScreen" style="display:none;">
-
-<!-- CADASTRO CLIENTE -->
 
 <div id="paginaClientes" class="card pagina">
 
 <h2>Cadastro Cliente</h2>
 
-<input type="text" id="nome" placeholder="Nome">
-<input type="text" id="telefone" placeholder="Telefone">
-<input type="text" id="cep" placeholder="CEP">
-
-<select id="tipo">
-<option value="">Tipo de imóvel</option>
-<option value="Casa">Casa</option>
-<option value="Apartamento">Apartamento</option>
-</select>
-
-<input type="text" id="numero" placeholder="Número">
-<input type="text" id="complemento" placeholder="Complemento">
-
-<input type="text" id="rua" placeholder="Rua">
-<input type="text" id="bairro" placeholder="Bairro">
-<input type="text" id="cidade" placeholder="Cidade">
+<input id="nome" placeholder="Nome">
+<input id="telefone" placeholder="Telefone">
 
 <button onclick="salvarCliente()">Salvar</button>
 
 </div>
 
-<!-- BUSCAR CLIENTE -->
-
 <div id="paginaBuscar" class="card pagina">
 
 <h2>Buscar Cliente</h2>
 
-<input type="text" id="busca" placeholder="Digite o nome">
+<input id="busca" placeholder="Nome">
+
 <button onclick="buscarCliente()">Buscar</button>
 
 <div id="resultado"></div>
 
 </div>
 
-<!-- SERVIÇOS -->
-
 <div id="paginaServicos" class="card pagina">
 
-<h2>Serviços do Cliente</h2>
+<h2>Serviço</h2>
 
-<div id="areaServicos">
+<input id="clienteServico" placeholder="Nome cliente">
 
-<input type="text" id="descricaoServico" placeholder="Descrição">
+<input id="descricaoServico" placeholder="Descrição">
 
 <input type="number" id="valorServico" placeholder="Valor">
 
@@ -204,47 +178,24 @@ Barreto App
 <option>Pix</option>
 <option>Cartão</option>
 <option>Dinheiro</option>
-<option>Transferência</option>
-</select>
-
-<label>Início Previsto</label>
-<input type="date" id="dataInicioPrevista">
-
-<label>Fim Previsto</label>
-<input type="date" id="dataFimPrevista">
-
-<select id="statusServico">
-<option>Orçamento</option>
-<option>Agendado</option>
-<option>Em andamento</option>
-<option>Finalizado</option>
 </select>
 
 <button onclick="salvarServico()">Salvar Serviço</button>
 
-<hr>
-
-<div id="listaServicos"></div>
-
 </div>
-
-</div>
-
-<!-- RELATÓRIO -->
 
 <div id="paginaRelatorios" class="card pagina">
 
-<h2>Relatório Financeiro</h2>
+<h2>Financeiro</h2>
 
-<div id="relatorioFinanceiro">
+<div id="relatorio">
 
-💰 Total Serviços: R$ 0<br>
-💵 Total Recebido: R$ 0<br>
-⚠️ Total Pendente: R$ 0
+Total serviços: R$ 0<br>
+Recebido: R$ 0
 
 </div>
 
-<button onclick="gerarRelatorio()">Atualizar Relatório</button>
+<button onclick="gerarRelatorio()">Atualizar</button>
 
 </div>
 
@@ -256,46 +207,177 @@ Barreto App
 
 <script>
 
-/* MENU */
-
 function toggleMenu(){
-document.getElementById("menu").classList.toggle("active");
+document.getElementById("menu").classList.toggle("active")
 }
 
-function abrirPagina(pagina){
+function abrirPagina(p){
 
-document.querySelectorAll(".pagina").forEach(p=>{
-p.style.display="none";
-});
+document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 
-if(pagina==="clientes"){
-document.getElementById("paginaClientes").style.display="block";
-}
+if(p=="clientes")document.getElementById("paginaClientes").style.display="block"
+if(p=="buscar")document.getElementById("paginaBuscar").style.display="block"
+if(p=="servicos")document.getElementById("paginaServicos").style.display="block"
+if(p=="relatorios")document.getElementById("paginaRelatorios").style.display="block"
 
-if(pagina==="buscar"){
-document.getElementById("paginaBuscar").style.display="block";
-}
+toggleMenu()
 
-if(pagina==="servicos"){
-document.getElementById("paginaServicos").style.display="block";
-}
-
-if(pagina==="relatorios"){
-document.getElementById("paginaRelatorios").style.display="block";
-}
-
-toggleMenu();
 }
 
 </script>
 
-<!-- SEU SCRIPT FIREBASE CONTINUA ABAIXO IGUAL -->
-
 <script type="module">
 
-/* TODO SEU SCRIPT FIREBASE QUE VOCÊ ENVIOU PERMANECE IGUAL */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+
+import { 
+getAuth,
+signInWithEmailAndPassword,
+createUserWithEmailAndPassword,
+signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+
+
+const firebaseConfig = {
+
+apiKey: "COLE_SUA_APIKEY",
+authDomain: "SEU_AUTHDOMAIN",
+projectId: "SEU_PROJECTID",
+storageBucket: "SEU_BUCKET",
+messagingSenderId: "SEU_SENDER",
+appId: "SEU_APPID"
+
+}
+
+
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
+const db = getFirestore(app)
+
+
+window.login = async function(){
+
+let email = document.getElementById("email").value
+let pass = document.getElementById("password").value
+
+await signInWithEmailAndPassword(auth,email,pass)
+
+loginScreen.style.display="none"
+appScreen.style.display="block"
+
+}
+
+
+window.register = async function(){
+
+let email = document.getElementById("email").value
+let pass = document.getElementById("password").value
+
+await createUserWithEmailAndPassword(auth,email,pass)
+
+alert("Conta criada")
+
+}
+
+
+window.logout = async function(){
+
+await signOut(auth)
+
+location.reload()
+
+}
+
+
+window.salvarCliente = async function(){
+
+let nome = document.getElementById("nome").value
+let telefone = document.getElementById("telefone").value
+
+await addDoc(collection(db,"clientes"),{
+nome,
+telefone
+})
+
+alert("Cliente salvo")
+
+}
+
+
+window.buscarCliente = async function(){
+
+let busca = document.getElementById("busca").value
+
+let snap = await getDocs(collection(db,"clientes"))
+
+let html=""
+
+snap.forEach(doc=>{
+
+let c = doc.data()
+
+if(c.nome.toLowerCase().includes(busca.toLowerCase())){
+
+html += c.nome + " - " + c.telefone + "<br>"
+
+}
+
+})
+
+document.getElementById("resultado").innerHTML=html
+
+}
+
+
+window.salvarServico = async function(){
+
+let cliente = document.getElementById("clienteServico").value
+let descricao = document.getElementById("descricaoServico").value
+let valor = document.getElementById("valorServico").value
+let pagamento = document.getElementById("formaPagamento").value
+
+await addDoc(collection(db,"servicos"),{
+
+cliente,
+descricao,
+valor:Number(valor),
+pagamento
+
+})
+
+alert("Serviço salvo")
+
+}
+
+
+window.gerarRelatorio = async function(){
+
+let snap = await getDocs(collection(db,"servicos"))
+
+let total = 0
+
+snap.forEach(doc=>{
+
+let s = doc.data()
+
+total += Number(s.valor)
+
+})
+
+document.getElementById("relatorio").innerHTML = 
+"Total serviços: R$ "+total
+
+}
 
 </script>
 
 </body>
 </html>
+```
