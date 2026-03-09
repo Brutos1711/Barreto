@@ -147,7 +147,7 @@ Barreto App
 <input id="bairro" placeholder="Bairro">
 <input id="cidade" placeholder="Cidade">
 
-<button onclick="()">Salvar</button>
+<button onclick="salvarCliente()">Salvar</button>
 
 <h3>Clientes cadastrados</h3>
 <div id="listaClientes"></div>
@@ -663,7 +663,7 @@ html += `
 
 <br>
 
-<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}')"
+<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}')">
 Editar
 </button>
 
@@ -796,8 +796,6 @@ let pagamentosHTML = ""
 if(s.pagamentos){
 
 s.pagamentos.forEach(p=>{
-
-${pagamentosHTML}  
 
 pagamentosHTML += `
 <div style="font-size:13px;margin-left:10px">
