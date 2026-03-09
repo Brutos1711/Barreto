@@ -515,7 +515,7 @@ alert("Valor inválido")
 return
 }
 
-let forma = prompt("Forma de pagamento: Pix, Cartão ou Dinheiro")
+let forma = prompt("Forma de pagamento (Pix, Cartão, Dinheiro)")
 
 let ref = doc(db,"servicos",id)
 
@@ -523,30 +523,32 @@ let snap = await getDoc(ref)
 
 let dados = snap.data()
 
-let pago = dados.valorPago || 0
 let total = dados.valor
+let pagamentos = dados.pagamentos || []
 
-let novoTotal = pago + valor
+let soma = pagamentos.reduce((t,p)=> t + p.valor,0)
 
-if(novoTotal > total){
-
-alert("Pagamento maior que o valor do serviço!")
+if(soma + valor > total){
+alert("Pagamento ultrapassa o valor do serviço")
 return
+}
 
+pagamentos.push({
+valor:valor,
+forma:forma,
+data:new Date().toLocaleDateString()
+})
+
+let status = "A receber"
+
+if(soma + valor == total){
+status = "Pago"
 }
 
 await updateDoc(ref,{
-valorPago: novoTotal,
-formaUltimoPagamento: forma
+pagamentos:pagamentos,
+statusPagamento:status
 })
-
-if(novoTotal == total){
-
-await updateDoc(ref,{
-statusPagamento:"Pago"
-})
-
-}
 
 alert("Pagamento registrado")
 
@@ -788,6 +790,25 @@ snap.forEach(docSnap=>{
 let s = docSnap.data()
 let id = docSnap.id
 
+// montar histórico de pagamentos
+let pagamentosHTML = ""
+
+if(s.pagamentos){
+
+s.pagamentos.forEach(p=>{
+
+${pagamentosHTML}  
+
+pagamentosHTML += `
+<div style="font-size:13px;margin-left:10px">
+💵 ${p.forma} - R$ ${p.valor} (${p.data})
+</div>
+`
+
+})
+
+}
+
 html += `
 
 <div style="border-bottom:1px solid #eee;padding:10px">
@@ -798,11 +819,11 @@ ${s.descricao}<br>
 
 💰 Total: R$ ${s.valor}<br>
 
-💵 Pago: R$ ${s.valorPago || 0}<br>
-
 📊 ${s.status}<br>
 
 💳 ${s.statusPagamento}
+
+${pagamentosHTML}
 
 ${s.statusPagamento == "A receber" ? 
 `<br><button onclick="adicionarPagamento('${id}')">Adicionar Pagamento</button>` 
@@ -827,6 +848,7 @@ Excluir
 document.getElementById("listaTodosServicos").innerHTML = html
 
 }
+  
 window.buscarCEP = async function(){
 
 let cep = document.getElementById("cep").value.replace(/\D/g,"")
