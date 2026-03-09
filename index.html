@@ -185,10 +185,11 @@ Barreto App
 
 <h2>Serviço</h2>
 
+<h3>Todos os serviços</h3>
+<div id="listaTodosServicos"></div>
+
 <input id="clienteServico" placeholder="Nome cliente">
-
 <input id="descricaoServico" placeholder="Descrição">
-
 <input type="number" id="valorServico" placeholder="Valor">
 
 <select id="formaPagamento">
@@ -203,8 +204,9 @@ Barreto App
 </select>
 
 <select id="statusServico">
+<option value="Orçamento">Orçamento</option>
+<option value="Aguardando resposta">Aguardando resposta</option>
 <option value="Em andamento">Em andamento</option>
-<option value="Pronto">Pronto</option>
 <option value="Finalizado">Finalizado</option>
 </select>
 
@@ -535,6 +537,8 @@ abrirPagina("servicos")
 }
   
 window.editarServico = function(id,descricao,valor,status){
+
+abrirPagina("servicos")
 
 document.getElementById("descricaoServico").value = descricao
 document.getElementById("valorServico").value = valor
