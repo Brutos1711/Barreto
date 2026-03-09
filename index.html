@@ -845,6 +845,40 @@ cep.value = cep.value
 .slice(0,9)
 
 }
+
+window.buscarCliente = async function(){
+
+let texto = document.getElementById("busca").value.toLowerCase()
+
+let snap = await getDocs(collection(db,"clientes"))
+
+let html=""
+
+snap.forEach(docSnap=>{
+
+let c = docSnap.data()
+
+if(c.nome.toLowerCase().includes(texto)){
+
+html += `
+
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<b onclick="abrirCliente('${c.nome}')">${c.nome}</b><br>
+
+${c.telefone || ""}
+
+</div>
+
+`
+
+}
+
+})
+
+document.getElementById("resultado").innerHTML = html
+
+}
   
 </script>
 
