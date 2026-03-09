@@ -182,6 +182,12 @@ Barreto App
 
 <div id="dashboard" class="dashboard">
 
+<div id="painelHoje" style="margin-top:20px"></div>
+
+<div id="painelSemana" style="margin-top:20px"></div>
+
+<div id="painelAlertas" style="margin-top:20px"></div>
+  
 <div class="cardDash">
 <div class="titulo">👥 Clientes</div>
 <div id="dashClientes" class="numero">0</div>
@@ -818,19 +824,38 @@ let mesAtual = new Date().getMonth()
 let anoAtual = new Date().getFullYear()
 
 let hoje = new Date().toISOString().split("T")[0]
+let hojeData = new Date()
+
+let listaHoje = []
+let listaSemana = []
+let pagamentosPendentes = []
 
 snapServicos.forEach(docSnap=>{
 
 let s = docSnap.data()
 
-if(s.dataServico == hoje){
-servicosHoje++
-}
-  
-let total = s.valor || 0
-let pago = 0
+/* DATA DO SERVIÇO */
+
+let dataServico = new Date(s.dataServico)
+let diffDias = Math.floor((dataServico - hojeData) / (1000*60*60*24))
 
 /* SERVIÇOS DE HOJE */
+
+if(s.dataServico == hoje){
+servicosHoje++
+listaHoje.push(s)
+}
+
+/* SERVIÇOS DA SEMANA */
+
+if(diffDias >= 0 && diffDias <= 7){
+listaSemana.push(s)
+}
+
+/* PAGAMENTOS */
+
+let total = s.valor || 0
+let pago = 0
 
 if(s.pagamentos){
 
@@ -851,15 +876,90 @@ recebido += p.valor
 
 if(pago < total){
 receber += (total - pago)
+pagamentosPendentes.push(s)
 }
 
 })
+
+/* NÚMEROS DO DASHBOARD */
 
 document.getElementById("dashClientes").innerText = clientes
 document.getElementById("dashServicos").innerText = servicos
 document.getElementById("dashRecebido").innerText = "R$ "+recebido.toFixed(2)
 document.getElementById("dashReceber").innerText = "R$ "+receber.toFixed(2)
 document.getElementById("dashHoje").innerText = servicosHoje
+
+/* SERVIÇOS DE HOJE */
+
+let hojeHTML = "<h3>📅 Serviços de hoje</h3>"
+
+if(listaHoje.length == 0){
+
+hojeHTML += "<div>Nenhum serviço hoje</div>"
+
+}else{
+
+listaHoje.forEach(s=>{
+
+hojeHTML += `
+<div>
+• ${s.tipoServico} - ${s.cliente}
+</div>
+`
+
+})
+
+}
+
+document.getElementById("painelHoje").innerHTML = hojeHTML
+
+/* PRÓXIMOS SERVIÇOS */
+
+let semanaHTML = "<h3>📆 Próximos serviços</h3>"
+
+if(listaSemana.length == 0){
+
+semanaHTML += "<div>Nenhum serviço na semana</div>"
+
+}else{
+
+listaSemana.forEach(s=>{
+
+semanaHTML += `
+<div>
+• ${s.dataServico} - ${s.tipoServico} - ${s.cliente}
+</div>
+`
+
+})
+
+}
+
+document.getElementById("painelSemana").innerHTML = semanaHTML
+
+/* ALERTAS DE PAGAMENTO */
+
+let alertaHTML = "<h3>⚠ Pagamentos pendentes</h3>"
+
+if(pagamentosPendentes.length == 0){
+
+alertaHTML += "<div>Nenhum pagamento pendente</div>"
+
+}else{
+
+pagamentosPendentes.forEach(s=>{
+
+alertaHTML += `
+<div>
+• ${s.cliente} - R$ ${s.valor}
+</div>
+`
+
+})
+
+}
+
+document.getElementById("painelAlertas").innerHTML = alertaHTML
 
 })
 
