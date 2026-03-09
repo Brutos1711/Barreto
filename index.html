@@ -186,9 +186,6 @@ Barreto App
 
 <h2>Serviço</h2>
 
-<h3>Todos os serviços</h3>
-<div id="listaTodosServicos"></div>
-
 <input id="clienteServico" placeholder="Nome cliente">
 <input id="descricaoServico" placeholder="Descrição">
 <input type="number" id="valorServico" placeholder="Valor">
@@ -241,10 +238,6 @@ Barreto App
 
 </div>
 
-<button onclick="adicionarPagamento('${id}')">
-Adicionar pagamento
-</button>
-  
 </div>
 
 <script>
@@ -387,8 +380,6 @@ nome,telefone,cep,rua,bairro,cidade
 
 listarClientes()
 
-/* LIMPAR FORMULARIO */
-
 document.getElementById("nome").value=""
 document.getElementById("telefone").value=""
 document.getElementById("cep").value=""
@@ -397,54 +388,7 @@ document.getElementById("bairro").value=""
 document.getElementById("cidade").value=""
 
 }
-window.clienteEditando=null
-
-}else{
-
-await addDoc(collection(db,"clientes"),{
-nome,telefone,cep,rua,bairro,cidade
-})
-
-}
-
-listarClientes()
-
-}
-
-
-window.buscarCliente = async function(){
-
-let busca = document.getElementById("busca").value.toLowerCase()
-
-let snap = await getDocs(collection(db,"clientes"))
-
-let html=""
-
-snap.forEach(docSnap=>{
-
-let c = docSnap.data()
-
-if(c.nome.toLowerCase().includes(busca)){
-
-html += `
-
-<div style="padding:10px;border-bottom:1px solid #eee">
-
-<b onclick="abrirCliente('${c.nome}')">${c.nome}</b><br>
-${c.telefone}
-
-</div>
-
-`
-
-}
-
-})
-
-document.getElementById("resultado").innerHTML=html
-
-}
-
+  
 window.salvarServico = async function(){
 
 let cliente = document.getElementById("clienteServico").value
@@ -465,7 +409,7 @@ status,
 statusPagamento
 })
 
-window.servicoEditando = null
+window.servicoEditando=null
 
 }else{
 
@@ -480,9 +424,7 @@ statusPagamento
 
 }
 
-listarServicos(cliente)
-
-/* LIMPAR FORMULARIO */
+listarTodosServicos()
 
 document.getElementById("clienteServico").value=""
 document.getElementById("descricaoServico").value=""
@@ -491,30 +433,7 @@ document.getElementById("valorServico").value=""
 alert("Serviço salvo")
 
 }
-
-window.servicoEditando = null
-
-}else{
-
-await addDoc(collection(db,"servicos"),{
-
-cliente,
-descricao,
-valor:Number(valor),
-pagamento,
-status,
-statusPagamento
-
-})
-
-}
-
-listarServicos(cliente)
-
-alert("Serviço salvo")
-
-}
-
+  
 window.gerarRelatorio = async function(){
 
 let snap = await getDocs(collection(db,"servicos"))
@@ -638,12 +557,16 @@ window.abrirCliente = function(nome){
 
 window.clienteAtual = nome
 
+let clientes = JSON.parse(localStorage.getItem("clientes") || "[]")
+let c = clientes.find(x => x.nome === nome)
+
 document.getElementById("nomeClienteTitulo").innerHTML = `
-Cliente: ${c.nome}<br>
-📞 ${c.telefone}<br>
-📍 ${c.rua}, ${c.bairro} - ${c.cidade}
+Cliente: ${nome}<br>
+📞 ${c.telefone || ""}<br>
+📍 ${c.rua || ""}, ${c.bairro || ""} - ${c.cidade || ""}
 `
-document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
+
+document.querySelectorAll(".pagina").forEach(x => x.style.display="none")
 
 document.getElementById("paginaCliente").style.display="block"
 
