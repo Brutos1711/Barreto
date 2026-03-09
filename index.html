@@ -469,6 +469,7 @@ existe = true
 
 if(existe){
 alert("Cliente já cadastrado")
+btn.disabled = false
 return
 }  
   
@@ -711,10 +712,14 @@ listarClientes()
 
 }
 
-window.editarCliente = function(id,nome,telefone){
+window.editarCliente = function(id,nome,telefone,cep,rua,bairro,cidade){
 
 document.getElementById("nome").value = nome
 document.getElementById("telefone").value = telefone
+document.getElementById("cep").value = cep || ""
+document.getElementById("rua").value = rua || ""
+document.getElementById("bairro").value = bairro || ""
+document.getElementById("cidade").value = cidade || ""
 
 window.clienteEditando = id
 
@@ -907,7 +912,7 @@ listaHoje.forEach(s=>{
 
 hojeHTML += `
 <div>
-• ${s.tipoServico} - ${s.cliente}
+• ${s.descricao} - ${s.cliente}
 </div>
 `
 
@@ -931,7 +936,7 @@ listaSemana.forEach(s=>{
 
 semanaHTML += `
 <div>
-• ${s.dataServico} - ${s.tipoServico} - ${s.cliente}
+• ${s.dataServico} - ${s.descricao} - ${s.cliente}
 </div>
 `
 
@@ -988,7 +993,15 @@ html += `
 
 ${c.telefone}<br>
 
-<button onclick="editarCliente('${id}','${c.nome}','${c.telefone}')">
+<button onclick="editarCliente(
+'${id}',
+'${c.nome}',
+'${c.telefone}',
+'${c.cep}',
+'${c.rua}',
+'${c.bairro}',
+'${c.cidade}'
+)">
 Editar
 </button>
 
