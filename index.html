@@ -791,6 +791,10 @@ html += `
 Editar
 </button>
 
+<button onclick='gerarOS(${JSON.stringify(s)})'>
+📄 OS
+</button>
+
 <button onclick="excluirServico('${id}','${cliente}')">
 Excluir
 </button>
@@ -1069,6 +1073,79 @@ Excluir
 document.getElementById("listaTodosServicos").innerHTML = html
 
 }
+
+window.gerarOS = function(servico){
+
+let janela = window.open("")
+
+let html = `
+<html>
+<head>
+<title>Ordem de Serviço</title>
+
+<style>
+
+body{
+font-family:Arial;
+padding:30px;
+}
+
+h1{
+text-align:center;
+}
+
+.box{
+border:1px solid #000;
+padding:15px;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>ORDEM DE SERVIÇO</h1>
+
+<div class="box">
+<b>Cliente:</b> ${servico.cliente}
+</div>
+
+<div class="box">
+<b>Serviço:</b> ${servico.descricao}
+</div>
+
+<div class="box">
+<b>Data:</b> ${servico.dataServico}
+</div>
+
+<div class="box">
+<b>Valor:</b> R$ ${servico.valor}
+</div>
+
+<div class="box">
+<b>Observação:</b><br>
+${servico.observacao || ""}
+</div>
+
+<br><br>
+
+<div>
+_____________________________<br>
+Assinatura do cliente
+</div>
+
+</body>
+</html>
+`
+
+janela.document.write(html)
+janela.document.close()
+
+janela.print()
+
+}  
   
 window.buscarCEP = async function(){
 
