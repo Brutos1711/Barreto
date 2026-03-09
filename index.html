@@ -107,6 +107,7 @@ display:none;
 <button onclick="abrirPagina('clientes')">Clientes</button>
 <button onclick="abrirPagina('buscar')">Buscar Cliente</button>
 <button onclick="abrirPagina('servicos')">Serviços</button>
+<button onclick="abrirPagina('todosServicos')">Todos Serviços</button>
 <button onclick="abrirPagina('relatorios')">Relatórios</button>
 </div>
 
@@ -232,6 +233,14 @@ Barreto App
 
 </div>
 
+<div id="paginaTodosServicos" class="card pagina">
+
+<h2>Todos os Serviços</h2>
+
+<div id="listaTodosServicos"></div>
+
+</div>
+  
 </div>
 
 <script>
@@ -261,6 +270,11 @@ if(p=="relatorios"){
 document.getElementById("paginaRelatorios").style.display="block"
 }
 
+if(p=="todosServicos"){
+document.getElementById("paginaTodosServicos").style.display="block"
+listarTodosServicos()
+}  
+  
 /* FECHA MENU AUTOMATICO */
 
 document.getElementById("menu").classList.remove("active")
@@ -286,6 +300,7 @@ collection,
 addDoc,
 getDocs,
 doc,
+getDoc,
 updateDoc,
 deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
@@ -368,6 +383,28 @@ nome,telefone,cep,rua,bairro,cidade
 
 listarClientes()
 
+/* LIMPAR FORMULARIO */
+
+document.getElementById("nome").value=""
+document.getElementById("telefone").value=""
+document.getElementById("cep").value=""
+document.getElementById("rua").value=""
+document.getElementById("bairro").value=""
+document.getElementById("cidade").value=""
+
+}
+window.clienteEditando=null
+
+}else{
+
+await addDoc(collection(db,"clientes"),{
+nome,telefone,cep,rua,bairro,cidade
+})
+
+}
+
+listarClientes()
+
 }
 
 
@@ -416,15 +453,40 @@ let statusPagamento = document.getElementById("statusPagamento").value
 if(window.servicoEditando){
 
 await updateDoc(doc(db,"servicos",window.servicoEditando),{
-
 cliente,
 descricao,
 valor:Number(valor),
 pagamento,
 status,
 statusPagamento
-
 })
+
+window.servicoEditando = null
+
+}else{
+
+await addDoc(collection(db,"servicos"),{
+cliente,
+descricao,
+valor:Number(valor),
+pagamento,
+status,
+statusPagamento
+})
+
+}
+
+listarServicos(cliente)
+
+/* LIMPAR FORMULARIO */
+
+document.getElementById("clienteServico").value=""
+document.getElementById("descricaoServico").value=""
+document.getElementById("valorServico").value=""
+
+alert("Serviço salvo")
+
+}
 
 window.servicoEditando = null
 
@@ -572,8 +634,11 @@ window.abrirCliente = function(nome){
 
 window.clienteAtual = nome
 
-document.getElementById("nomeClienteTitulo").innerText = "Cliente: " + nome
-
+document.getElementById("nomeClienteTitulo").innerHTML = `
+Cliente: ${c.nome}<br>
+📞 ${c.telefone}<br>
+📍 ${c.rua}, ${c.bairro} - ${c.cidade}
+`
 document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 
 document.getElementById("paginaCliente").style.display="block"
