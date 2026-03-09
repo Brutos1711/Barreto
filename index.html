@@ -254,6 +254,7 @@ document.getElementById("paginaBuscar").style.display="block"
 
 if(p=="servicos"){
 document.getElementById("paginaServicos").style.display="block"
+listarTodosServicos()
 }
 
 if(p=="relatorios"){
@@ -724,6 +725,51 @@ Excluir
 })
 
 document.getElementById("listaClientes").innerHTML = html
+
+}
+
+window.listarTodosServicos = async function(){
+
+let snap = await getDocs(collection(db,"servicos"))
+
+let html=""
+
+snap.forEach(docSnap=>{
+
+let s = docSnap.data()
+let id = docSnap.id
+
+html += `
+
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<b>${s.cliente}</b><br>
+
+${s.descricao}<br>
+
+💰 R$ ${s.valor}<br>
+
+📊 ${s.status}<br>
+
+💳 ${s.statusPagamento}
+
+<br>
+
+<button onclick="editarServico('${id}','${s.descricao}','${s.valor}','${s.status}')">
+Editar
+</button>
+
+<button onclick="excluirServico('${id}')">
+Excluir
+</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("listaTodosServicos").innerHTML = html
 
 }
   
