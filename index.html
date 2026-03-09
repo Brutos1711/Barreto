@@ -510,14 +510,21 @@ window.adicionarPagamento = async function(id){
 
 let valor = parseFloat(prompt("Valor do pagamento"))
 
+if(!valor || valor <= 0){
+alert("Valor inválido")
+return
+}
+
+let forma = prompt("Forma de pagamento: Pix, Cartão ou Dinheiro")
+
 let ref = doc(db,"servicos",id)
 
 let snap = await getDoc(ref)
 
 let dados = snap.data()
 
-let total = dados.valorTotal
 let pago = dados.valorPago || 0
+let total = dados.valor
 
 let novoTotal = pago + valor
 
@@ -529,8 +536,17 @@ return
 }
 
 await updateDoc(ref,{
-valorPago: novoTotal
+valorPago: novoTotal,
+formaUltimoPagamento: forma
 })
+
+if(novoTotal == total){
+
+await updateDoc(ref,{
+statusPagamento:"Pago"
+})
+
+}
 
 alert("Pagamento registrado")
 
@@ -546,10 +562,11 @@ abrirPagina("servicos")
 
 }
   
-window.editarServico = function(id,descricao,valor,status){
+window.editarServico = function(id,cliente,descricao,valor,status){
 
 abrirPagina("servicos")
 
+document.getElementById("clienteServico").value = cliente
 document.getElementById("descricaoServico").value = descricao
 document.getElementById("valorServico").value = valor
 document.getElementById("statusServico").value = status
@@ -644,7 +661,7 @@ html += `
 
 <br>
 
-<button onclick="editarServico('${id}','${s.descricao}','${s.valor}','${s.status}')">
+<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}')"
 Editar
 </button>
 
@@ -779,15 +796,21 @@ html += `
 
 ${s.descricao}<br>
 
-💰 R$ ${s.valor}<br>
+💰 Total: R$ ${s.valor}<br>
+
+💵 Pago: R$ ${s.valorPago || 0}<br>
 
 📊 ${s.status}<br>
 
 💳 ${s.statusPagamento}
 
-<br>
+${s.statusPagamento == "A receber" ? 
+`<br><button onclick="adicionarPagamento('${id}')">Adicionar Pagamento</button>` 
+: "" }
 
-<button onclick="editarServico('${id}','${s.descricao}','${s.valor}','${s.status}')">
+<br><br>
+
+<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}')">
 Editar
 </button>
 
@@ -804,7 +827,6 @@ Excluir
 document.getElementById("listaTodosServicos").innerHTML = html
 
 }
-  
 window.buscarCEP = async function(){
 
 let cep = document.getElementById("cep").value.replace(/\D/g,"")
