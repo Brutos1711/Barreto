@@ -147,7 +147,7 @@ Barreto App
 <input id="bairro" placeholder="Bairro">
 <input id="cidade" placeholder="Cidade">
 
-<button onclick="salvarCliente()">Salvar</button>
+<button onclick="()">Salvar</button>
 
 <h3>Clientes cadastrados</h3>
 <div id="listaClientes"></div>
@@ -355,6 +355,9 @@ location.reload()
 
 window.salvarCliente = async function(){
 
+let btn = event.target
+btn.disabled = true
+
 let nome = document.getElementById("nome").value
 let telefone = document.getElementById("telefone").value
 let cep = document.getElementById("cep").value
@@ -362,6 +365,25 @@ let rua = document.getElementById("rua").value
 let bairro = document.getElementById("bairro").value
 let cidade = document.getElementById("cidade").value
 
+// 🔎 VERIFICAR SE CLIENTE JÁ EXISTE
+let snap = await getDocs(collection(db,"clientes"))
+
+let existe = false
+
+snap.forEach(docSnap=>{
+let c = docSnap.data()
+
+if(c.nome.toLowerCase() == nome.toLowerCase()){
+existe = true
+}
+
+})
+
+if(existe){
+alert("Cliente já cadastrado")
+return
+}  
+  
 if(window.clienteEditando){
 
 await updateDoc(doc(db,"clientes",window.clienteEditando),{
@@ -386,6 +408,8 @@ document.getElementById("cep").value=""
 document.getElementById("rua").value=""
 document.getElementById("bairro").value=""
 document.getElementById("cidade").value=""
+
+btn.disabled = false
 
 }
   
@@ -476,7 +500,7 @@ if(confirm("Deseja excluir o serviço?")){
 
 await deleteDoc(doc(db,"servicos",id))
 
-listarServicos()
+listarTodosServicos()
 
 }
 
@@ -510,7 +534,7 @@ valorPago: novoTotal
 
 alert("Pagamento registrado")
 
-listarServicos()
+listarTodosServicos()
 
 }
   
@@ -553,17 +577,33 @@ window.clienteEditando = id
 
 }
   
-window.abrirCliente = function(nome){
+window.abrirCliente = async function(nome){
 
 window.clienteAtual = nome
 
-let clientes = JSON.parse(localStorage.getItem("clientes") || "[]")
-let c = clientes.find(x => x.nome === nome)
+let snap = await getDocs(collection(db,"clientes"))
+
+let cliente = null
+
+snap.forEach(docSnap=>{
+
+let c = docSnap.data()
+
+if(c.nome == nome){
+cliente = c
+}
+
+})
+
+if(!cliente){
+alert("Cliente não encontrado")
+return
+}
 
 document.getElementById("nomeClienteTitulo").innerHTML = `
-Cliente: ${nome}<br>
-📞 ${c.telefone || ""}<br>
-📍 ${c.rua || ""}, ${c.bairro || ""} - ${c.cidade || ""}
+Cliente: ${cliente.nome}<br>
+📞 ${cliente.telefone || ""}<br>
+📍 ${cliente.rua || ""}, ${cliente.bairro || ""} - ${cliente.cidade || ""}
 `
 
 document.querySelectorAll(".pagina").forEach(x => x.style.display="none")
