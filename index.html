@@ -410,7 +410,6 @@ await signInWithEmailAndPassword(auth,email,pass)
 loginScreen.style.display="none"
 appScreen.style.display="block"
 abrirPagina("dashboard")
-carregarDashboard()
   
 }
 
@@ -833,10 +832,6 @@ let pago = 0
 
 /* SERVIÇOS DE HOJE */
 
-if(s.dataServico == hoje){
-servicosHoje++
-}
-
 if(s.pagamentos){
 
 s.pagamentos.forEach(p=>{
@@ -864,19 +859,7 @@ document.getElementById("dashClientes").innerText = clientes
 document.getElementById("dashServicos").innerText = servicos
 document.getElementById("dashRecebido").innerText = "R$ "+recebido.toFixed(2)
 document.getElementById("dashReceber").innerText = "R$ "+receber.toFixed(2)
-document.getElementById("dashHoje").innerText = servicosHoje  
-
-/* MOSTRAR SERVIÇOS DE HOJE */
-
-document.getElementById("dashboard").innerHTML += `
-
-<div style="margin-top:20px;font-size:16px;text-align:center">
-
-📅 Serviços hoje: <b>${servicosHoje}</b>
-
-</div>
-
-`
+document.getElementById("dashHoje").innerText = servicosHoje
 
 })
 
