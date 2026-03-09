@@ -98,17 +98,59 @@ text-align:center;
 display:none;
 }
 
+.dashboard{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-top:15px;
+}
+
+.cardDash{
+background:white;
+padding:20px;
+border-radius:18px;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+text-align:center;
+}
+
+.titulo{
+font-size:14px;
+color:#555;
+}
+
+.numero{
+font-size:26px;
+font-weight:bold;
+margin-top:5px;
+}
+  
 </style>
 </head>
 
 <body>
 
 <div id="menu" class="sidebar">
+
+<button onclick="toggleMenu()">⬅ Voltar</button>
+
+<button onclick="abrirPagina('dashboard')">Painel</button>
+
 <button onclick="abrirPagina('clientes')">Clientes</button>
+
 <button onclick="abrirPagina('buscar')">Buscar Cliente</button>
+
 <button onclick="abrirPagina('servicos')">Serviços</button>
+
 <button onclick="abrirPagina('todosServicos')">Todos Serviços</button>
+
 <button onclick="abrirPagina('relatorios')">Relatórios</button>
+
+<div style="position:absolute;bottom:20px;width:100%;padding:10px">
+
+<button onclick="logout()">Sair</button>
+
+</div>
+
 </div>
 
 <div class="topbar">
@@ -133,6 +175,36 @@ Barreto App
 <div id="appScreen" style="display:none;">
 
 <!-- CLIENTES -->
+
+<div id="paginaDashboard" class="card pagina">
+
+<h2>Painel</h2>
+
+<div id="dashboard" class="dashboard">
+
+<div class="cardDash">
+<div class="titulo">👥 Clientes</div>
+<div id="dashClientes" class="numero">0</div>
+</div>
+
+<div class="cardDash">
+<div class="titulo">🛠 Serviços</div>
+<div id="dashServicos" class="numero">0</div>
+</div>
+
+<div class="cardDash">
+<div class="titulo">💰 Recebido mês</div>
+<div id="dashRecebido" class="numero">0</div>
+</div>
+
+<div class="cardDash">
+<div class="titulo">🕒 A receber</div>
+<div id="dashReceber" class="numero">0</div>
+</div>
+
+</div>
+
+</div>  
 
 <div id="paginaClientes" class="card pagina">
 
@@ -226,8 +298,6 @@ Barreto App
 
 </div>
 
-<button onclick="logout()">Sair</button>
-
 </div>
 
 <div id="paginaTodosServicos" class="card pagina">
@@ -250,8 +320,14 @@ function abrirPagina(p){
 
 document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 
+if(p=="dashboard"){
+document.getElementById("paginaDashboard").style.display="block"
+carregarDashboard()
+}
+
 if(p=="clientes"){
 document.getElementById("paginaClientes").style.display="block"
+listarClientes()
 }
 
 if(p=="buscar"){
@@ -260,7 +336,6 @@ document.getElementById("paginaBuscar").style.display="block"
 
 if(p=="servicos"){
 document.getElementById("paginaServicos").style.display="block"
-listarTodosServicos()
 }
 
 if(p=="relatorios"){
@@ -270,14 +345,12 @@ document.getElementById("paginaRelatorios").style.display="block"
 if(p=="todosServicos"){
 document.getElementById("paginaTodosServicos").style.display="block"
 listarTodosServicos()
-}  
-  
-/* FECHA MENU AUTOMATICO */
+}
 
+/* FECHA MENU */
 document.getElementById("menu").classList.remove("active")
 
 }
-
 </script>
 
 <script type="module">
@@ -328,7 +401,9 @@ await signInWithEmailAndPassword(auth,email,pass)
 
 loginScreen.style.display="none"
 appScreen.style.display="block"
-
+abrirPagina("dashboard")
+carregarDashboard()
+  
 }
 
 
@@ -462,33 +537,55 @@ window.gerarRelatorio = async function(){
 
 let snap = await getDocs(collection(db,"servicos"))
 
-let total = 0
 let recebido = 0
 let receber = 0
+let servicos = 0
 
-snap.forEach(doc=>{
+let mesAtual = new Date().getMonth()
+let anoAtual = new Date().getFullYear()
 
-let s = doc.data()
+snap.forEach(docSnap=>{
 
-let valor = Number(s.valor)
+let s = docSnap.data()
 
-total += valor
+servicos++
 
-if(s.statusPagamento == "Pago"){
-recebido += valor
-}else{
-receber += valor
+let totalServico = s.valor || 0
+
+let pago = 0
+
+if(s.pagamentos){
+
+s.pagamentos.forEach(p=>{
+
+let partes = p.data.split("/")
+let dataPagamento = new Date(partes[2], partes[1]-1, partes[0])
+
+if(dataPagamento.getMonth() == mesAtual && dataPagamento.getFullYear() == anoAtual){
+
+recebido += p.valor
+
+}
+
+pago += p.valor
+
+})
+
+}
+
+if(totalServico > pago){
+receber += (totalServico - pago)
 }
 
 })
 
 document.getElementById("relatorio").innerHTML = `
 
-💰 Total serviços: R$ ${total}<br><br>
+📊 Serviços cadastrados: ${servicos}<br><br>
 
-✅ Recebido: R$ ${recebido}<br><br>
+💰 Recebido este mês: R$ ${recebido.toFixed(2)}<br><br>
 
-🕒 A receber: R$ ${receber}
+🕒 Total a receber: R$ ${receber.toFixed(2)}
 
 `
 
@@ -564,7 +661,7 @@ abrirPagina("servicos")
 
 }
   
-window.editarServico = function(id,cliente,descricao,valor,status){
+window.editarServico = function(id,cliente,descricao,valor,status,pagamento,statusPagamento){
 
 abrirPagina("servicos")
 
@@ -572,6 +669,14 @@ document.getElementById("clienteServico").value = cliente
 document.getElementById("descricaoServico").value = descricao
 document.getElementById("valorServico").value = valor
 document.getElementById("statusServico").value = status
+
+if(pagamento){
+document.getElementById("formaPagamento").value = pagamento
+}
+
+if(statusPagamento){
+document.getElementById("statusPagamento").value = statusPagamento
+}
 
 window.servicoEditando = id
 
@@ -682,66 +787,58 @@ Excluir
 document.getElementById("historicoServicos").innerHTML = html
 
 }
-  
-window.listarServicos = async function(){
 
-let snap = await getDocs(collection(db,"servicos"))
+window.carregarDashboard = async function(){
 
-let html=""
+let snapServicos = await getDocs(collection(db,"servicos"))
+let snapClientes = await getDocs(collection(db,"clientes"))
 
-snap.forEach(docSnap=>{
+let clientes = snapClientes.size
+let servicos = snapServicos.size
+
+let recebido = 0
+let receber = 0
+
+let mesAtual = new Date().getMonth()
+let anoAtual = new Date().getFullYear()
+
+snapServicos.forEach(docSnap=>{
 
 let s = docSnap.data()
-let id = docSnap.id
 
-let status=""
+let total = s.valor || 0
+let pago = 0
 
-if(s.valorPago >= s.valorTotal){
-status="🟢 Pago"
+if(s.pagamentos){
+
+s.pagamentos.forEach(p=>{
+
+pago += p.valor
+
+let partes = p.data.split("/")
+let dataPagamento = new Date(partes[2], partes[1]-1, partes[0])
+
+if(dataPagamento.getMonth()==mesAtual && dataPagamento.getFullYear()==anoAtual){
+recebido += p.valor
 }
-else if(s.valorPago > 0){
-status="🟡 Parcial"
-}
-else{
-status="🔴 Pendente"
-}
-
-html += `
-
-<div style="border-bottom:1px solid #eee;padding:10px">
-
-<b>${s.servico}</b><br>
-
-Valor: ${s.valorTotal}<br>
-
-Pago: ${s.valorPago || 0} / ${s.valorTotal}<br>
-
-Status: ${status}
-
-<br><br>
-
-<button onclick="adicionarPagamento('${id}')">
-Pagamento
-</button>
-
-<button onclick="editarServico('${id}')">
-Editar
-</button>
-
-<button onclick="excluirServico('${id}')">
-Excluir
-</button>
-
-</div>
-
-`
 
 })
 
-document.getElementById("historicoServicos").innerHTML = html
+}
+
+if(pago < total){
+receber += (total - pago)
+}
+
+})
+
+document.getElementById("dashClientes").innerText = clientes
+document.getElementById("dashServicos").innerText = servicos
+document.getElementById("dashRecebido").innerText = "R$ "+recebido.toFixed(2)
+document.getElementById("dashReceber").innerText = "R$ "+receber.toFixed(2)
 
 }
-  
+ 
 window.listarClientes = async function(){
 
 let snap = await getDocs(collection(db,"clientes"))
@@ -829,7 +926,7 @@ ${s.statusPagamento == "A receber" ?
 
 <br><br>
 
-<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}')">
+<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}','${s.pagamento}','${s.statusPagamento}')">
 Editar
 </button>
 
