@@ -202,6 +202,11 @@ Barreto App
 <div id="dashReceber" class="numero">0</div>
 </div>
 
+<div class="cardDash">
+<div class="titulo">📅 Serviços hoje</div>
+<div id="dashHoje" class="numero">0</div>
+</div>
+  
 </div>
 
 </div>  
@@ -262,6 +267,8 @@ Barreto App
 <input id="descricaoServico" placeholder="Descrição">
 <input type="number" id="valorServico" placeholder="Valor">
 
+<input type="date" id="dataServico">
+  
 <select id="formaPagamento">
 <option>Pix</option>
 <option>Cartão</option>
@@ -372,7 +379,8 @@ getDocs,
 doc,
 getDoc,
 updateDoc,
-deleteDoc
+deleteDoc,
+onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
 
 
@@ -493,6 +501,7 @@ window.salvarServico = async function(){
 let cliente = document.getElementById("clienteServico").value
 let descricao = document.getElementById("descricaoServico").value
 let valor = document.getElementById("valorServico").value
+let dataServico = document.getElementById("dataServico").value  
 let pagamento = document.getElementById("formaPagamento").value
 let status = document.getElementById("statusServico").value
 let statusPagamento = document.getElementById("statusPagamento").value
@@ -503,6 +512,7 @@ await updateDoc(doc(db,"servicos",window.servicoEditando),{
 cliente,
 descricao,
 valor:Number(valor),
+dataServico,
 pagamento,
 status,
 statusPagamento
@@ -516,6 +526,7 @@ await addDoc(collection(db,"servicos"),{
 cliente,
 descricao,
 valor:Number(valor),
+dataServico,
 pagamento,
 status,
 statusPagamento
@@ -540,6 +551,8 @@ let snap = await getDocs(collection(db,"servicos"))
 let recebido = 0
 let receber = 0
 let servicos = 0
+let servicosHoje = 0
+let hoje = new Date().toISOString().split("T")[0]
 
 let mesAtual = new Date().getMonth()
 let anoAtual = new Date().getFullYear()
@@ -650,6 +663,7 @@ statusPagamento:status
 alert("Pagamento registrado")
 
 listarTodosServicos()
+carregarDashboard()
 
 }
   
@@ -788,9 +802,10 @@ document.getElementById("historicoServicos").innerHTML = html
 
 }
 
-window.carregarDashboard = async function(){
+window.carregarDashboard = function(){
 
-let snapServicos = await getDocs(collection(db,"servicos"))
+onSnapshot(collection(db,"servicos"), async (snapServicos)=>{
+
 let snapClientes = await getDocs(collection(db,"clientes"))
 
 let clientes = snapClientes.size
@@ -798,16 +813,29 @@ let servicos = snapServicos.size
 
 let recebido = 0
 let receber = 0
+let servicosHoje = 0
 
 let mesAtual = new Date().getMonth()
 let anoAtual = new Date().getFullYear()
+
+let hoje = new Date().toISOString().split("T")[0]
 
 snapServicos.forEach(docSnap=>{
 
 let s = docSnap.data()
 
+if(s.dataServico == hoje){
+servicosHoje++
+}
+  
 let total = s.valor || 0
 let pago = 0
+
+/* SERVIÇOS DE HOJE */
+
+if(s.dataServico == hoje){
+servicosHoje++
+}
 
 if(s.pagamentos){
 
@@ -836,6 +864,21 @@ document.getElementById("dashClientes").innerText = clientes
 document.getElementById("dashServicos").innerText = servicos
 document.getElementById("dashRecebido").innerText = "R$ "+recebido.toFixed(2)
 document.getElementById("dashReceber").innerText = "R$ "+receber.toFixed(2)
+document.getElementById("dashHoje").innerText = servicosHoje  
+
+/* MOSTRAR SERVIÇOS DE HOJE */
+
+document.getElementById("dashboard").innerHTML += `
+
+<div style="margin-top:20px;font-size:16px;text-align:center">
+
+📅 Serviços hoje: <b>${servicosHoje}</b>
+
+</div>
+
+`
+
+})
 
 }
  
