@@ -249,6 +249,8 @@ Barreto App
 
 <div id="painelHoje" style="margin-top:20px"></div>
 
+<div id="painelAmanha" style="margin-top:20px"></div>
+
 <div id="painelSemana" style="margin-top:20px"></div>
 
 <div id="painelAlertas" style="margin-top:20px"></div>
@@ -900,7 +902,12 @@ let anoAtual = new Date().getFullYear()
 let hoje = new Date().toISOString().split("T")[0]
 let hojeData = new Date()
 
+let amanhaData = new Date()
+amanhaData.setDate(amanhaData.getDate()+1)
+let amanha = amanhaData.toISOString().split("T")[0]
+  
 let listaHoje = []
+let listaAmanha = []
 let listaSemana = []
 let pagamentosPendentes = []
 
@@ -920,6 +927,12 @@ servicosHoje++
 listaHoje.push(s)
 }
 
+/* SERVIÇOS DE AMANHA */
+
+if(s.dataServico == amanha){
+listaAmanha.push(s)
+}  
+  
 /* SERVIÇOS DA SEMANA */
 
 if(diffDias >= 0 && diffDias <= 7){
@@ -986,6 +999,30 @@ hojeHTML += `
 }
 
 document.getElementById("painelHoje").innerHTML = hojeHTML
+
+/* SERVIÇOS DE AMANHÃ */
+
+let amanhaHTML = "<h3>📆 Serviços de amanhã</h3>"
+
+if(listaAmanha.length == 0){
+
+amanhaHTML += "<div>Nenhum serviço amanhã</div>"
+
+}else{
+
+listaAmanha.forEach(s=>{
+
+amanhaHTML += `
+<div>
+• ${s.descricao} - ${s.cliente}
+</div>
+`
+
+})
+
+}
+
+document.getElementById("painelAmanha").innerHTML = amanhaHTML  
 
 /* PRÓXIMOS SERVIÇOS */
 
