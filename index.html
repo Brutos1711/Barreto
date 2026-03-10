@@ -1202,30 +1202,98 @@ document.getElementById("listaTodosServicos").innerHTML = html
 
 }
 
-window.gerarOS = function(servico){
+window.gerarOS = async function(servico){
+
+let snapClientes = await getDocs(collection(db,"clientes"))
+
+let cliente = {}
+
+snapClientes.forEach(docSnap=>{
+
+let c = docSnap.data()
+
+if(c.nome == servico.cliente){
+cliente = c
+}
+
+})
+
+let pagamentosHTML = ""
+
+if(servico.pagamentos){
+
+servico.pagamentos.forEach(p=>{
+
+pagamentosHTML += `
+<tr>
+<td>${p.data}</td>
+<td>${p.forma}</td>
+<td>R$ ${p.valor}</td>
+</tr>
+`
+
+})
+
+}else{
+
+pagamentosHTML = `
+<tr>
+<td colspan="3">Nenhum pagamento registrado</td>
+</tr>
+`
+
+}
 
 let janela = window.open("")
 
 let html = `
 <html>
+
 <head>
+
 <title>Ordem de Serviço</title>
 
 <style>
 
 body{
 font-family:Arial;
-padding:30px;
+padding:40px;
+color:#000;
 }
 
 h1{
 text-align:center;
+margin-bottom:30px;
+}
+
+.info{
+margin-bottom:20px;
 }
 
 .box{
 border:1px solid #000;
 padding:15px;
 margin-top:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+table, th, td{
+border:1px solid #000;
+}
+
+th,td{
+padding:8px;
+text-align:left;
+}
+
+.assinatura{
+margin-top:60px;
+text-align:center;
 }
 
 </style>
@@ -1235,37 +1303,56 @@ margin-top:10px;
 <body>
 
 <h1>ORDEM DE SERVIÇO</h1>
-<h3>OS ${servico.numeroOS || ""}</h3>
 
-<div class="box">
-<b>Cliente:</b> ${servico.cliente}
+<div class="info">
+<b>OS:</b> ${servico.numeroOS || ""}<br>
+<b>Data do serviço:</b> ${servico.dataServico}
 </div>
 
 <div class="box">
-<b>Serviço:</b> ${servico.descricao}
+<b>Cliente:</b> ${servico.cliente}<br>
+📞 ${cliente.telefone || ""}<br>
+📍 ${cliente.rua || ""}, ${cliente.bairro || ""} - ${cliente.cidade || ""}
 </div>
 
 <div class="box">
-<b>Data:</b> ${servico.dataServico}
+<b>Serviço executado</b><br><br>
+${servico.descricao}
 </div>
 
 <div class="box">
-<b>Valor:</b> R$ ${servico.valor}
+<b>Valor total:</b> R$ ${servico.valor}
 </div>
 
 <div class="box">
-<b>Observação:</b><br>
-${servico.observacao || ""}
+
+<b>Pagamentos</b>
+
+<table>
+
+<tr>
+<th>Data</th>
+<th>Forma</th>
+<th>Valor</th>
+</tr>
+
+${pagamentosHTML}
+
+</table>
+
 </div>
 
-<br><br>
+<div class="assinatura">
 
-<div>
-_____________________________<br>
+<br><br><br>
+
+___________________________________<br>
 Assinatura do cliente
+
 </div>
 
 </body>
+
 </html>
 `
 
@@ -1274,7 +1361,7 @@ janela.document.close()
 
 janela.print()
 
-}  
+} 
   
 window.buscarCEP = async function(){
 
