@@ -852,7 +852,8 @@ html += `
 
 <div style="border-bottom:1px solid #eee;padding:10px">
 
-<b>${s.descricao}</b><br>
+<b>OS ${s.numeroOS || ""}</b><br>
+<b>${s.descricao}</b>
 
 💰 R$ ${s.valor}<br>
 
@@ -976,6 +977,8 @@ saldo: saldo
 })
 
 }
+
+})
 
 /* NÚMEROS DO DASHBOARD */
 
@@ -1163,7 +1166,7 @@ html += `
 <div style="border-bottom:1px solid #eee;padding:10px">
 
 <b>OS ${s.numeroOS || ""}</b><br>
-<b>${s.cliente}</b>
+<b>${s.cliente}</b><br>
 
 ${s.descricao}<br>
 
