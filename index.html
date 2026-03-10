@@ -156,6 +156,22 @@ font-size:26px;
 font-weight:700;
 margin-top:5px;
 }
+
+.menuTitulo{
+font-size:20px;
+font-weight:600;
+padding:20px 15px;
+border-bottom:1px solid #eee;
+margin-bottom:10px;
+}
+
+.menuRodape{
+position:absolute;
+bottom:0;
+width:100%;
+padding:15px;
+border-top:1px solid #eee;
+}
   
 </style>
 </head>
@@ -164,23 +180,39 @@ margin-top:5px;
 
 <div id="menu" class="sidebar">
 
-<button onclick="toggleMenu()">⬅ Voltar</button>
+<div class="menuTitulo">
+Barreto App
+</div>
 
-<button onclick="abrirPagina('dashboard')">Painel</button>
+<button onclick="abrirPagina('dashboard')">
+🏠 Painel
+</button>
 
-<button onclick="abrirPagina('clientes')">Clientes</button>
+<button onclick="abrirPagina('clientes')">
+👥 Clientes
+</button>
 
-<button onclick="abrirPagina('buscar')">Buscar Cliente</button>
+<button onclick="abrirPagina('buscar')">
+🔎 Buscar Cliente
+</button>
 
-<button onclick="abrirPagina('servicos')">Serviços</button>
+<button onclick="abrirPagina('servicos')">
+🛠 Novo Serviço
+</button>
 
-<button onclick="abrirPagina('todosServicos')">Todos Serviços</button>
+<button onclick="abrirPagina('todosServicos')">
+📋 Todos Serviços
+</button>
 
-<button onclick="abrirPagina('relatorios')">Relatórios</button>
+<button onclick="abrirPagina('relatorios')">
+💰 Financeiro
+</button>
 
-<div style="position:absolute;bottom:20px;width:100%;padding:10px">
+<div class="menuRodape">
 
-<button onclick="logout()">Sair</button>
+<button onclick="logout()">
+🚪 Sair
+</button>
 
 </div>
 
