@@ -595,7 +595,10 @@ window.servicoEditando=null
 
 }else{
 
+let numeroOS = Date.now()
+
 await addDoc(collection(db,"servicos"),{
+numeroOS,
 cliente,
 descricao,
 valor:Number(valor),
@@ -962,11 +965,17 @@ recebido += p.valor
 }
 
 if(pago < total){
-receber += (total - pago)
-pagamentosPendentes.push(s)
-}
 
+let saldo = total - pago
+
+receber += saldo
+
+pagamentosPendentes.push({
+cliente: s.cliente,
+saldo: saldo
 })
+
+}
 
 /* NÚMEROS DO DASHBOARD */
 
@@ -1062,7 +1071,7 @@ pagamentosPendentes.forEach(s=>{
 
 alertaHTML += `
 <div>
-• ${s.cliente} - R$ ${s.valor}
+• ${s.cliente} - R$ ${s.saldo.toFixed(2)}
 </div>
 `
 
@@ -1153,7 +1162,8 @@ html += `
 
 <div style="border-bottom:1px solid #eee;padding:10px">
 
-<b>${s.cliente}</b><br>
+<b>OS ${s.numeroOS || ""}</b><br>
+<b>${s.cliente}</b>
 
 ${s.descricao}<br>
 
@@ -1222,6 +1232,7 @@ margin-top:10px;
 <body>
 
 <h1>ORDEM DE SERVIÇO</h1>
+<h3>OS ${servico.numeroOS || ""}</h3>
 
 <div class="box">
 <b>Cliente:</b> ${servico.cliente}
