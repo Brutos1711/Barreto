@@ -1,11 +1,10 @@
 {
-  "name": "Barreto App",
+  "name": "Barreto Serv",
   "short_name": "Barreto",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f2f2f7",
   "theme_color": "#007aff",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
