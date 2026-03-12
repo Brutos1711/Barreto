@@ -10,6 +10,8 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007aff">
 
+<link rel="apple-touch-icon" href="icon.png">
+  
 <title>Barreto App</title>
 
 <style>
@@ -676,8 +678,15 @@ alert("Serviço salvo")
   
 window.gerarRelatorio = async function(){
 
-let snap = await getDocs(collection(db,"servicos"))
+let user = auth.currentUser
 
+let q = query(
+collection(db,"servicos"),
+where("uid","==",user.uid)
+)
+
+let snap = await getDocs(q)
+  
 let recebido = 0
 let receber = 0
 let servicos = 0
@@ -813,7 +822,8 @@ document.getElementById("clienteServico").value = cliente
 document.getElementById("descricaoServico").value = descricao
 document.getElementById("valorServico").value = valor
 document.getElementById("statusServico").value = status
-
+document.getElementById("dataServico").value = dataServico
+  
 if(pagamento){
 document.getElementById("formaPagamento").value = pagamento
 }
@@ -1170,8 +1180,6 @@ alertaHTML += `
 document.getElementById("painelAlertas").innerHTML = alertaHTML
 
 })
-
-}
 
 }
  
