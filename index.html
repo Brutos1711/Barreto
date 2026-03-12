@@ -814,8 +814,8 @@ abrirPagina("servicos")
 
 }
   
-window.editarServico = function(id,cliente,descricao,valor,status,pagamento,statusPagamento){
-
+window.editarServico = function(id,cliente,descricao,valor,status,pagamento,statusPagamento,dataServico){
+  
 abrirPagina("servicos")
 
 document.getElementById("clienteServico").value = cliente
@@ -1176,7 +1176,9 @@ alertaHTML += `
 document.getElementById("painelAlertas").innerHTML = alertaHTML
 
 }
-  
+
+}) // ← FECHA onSnapshot
+
 }
  
 window.listarClientes = async function(){
@@ -1289,7 +1291,7 @@ ${s.statusPagamento == "A receber" ?
 
 <br><br>
 
-<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}','${s.pagamento}','${s.statusPagamento}')">
+<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}','${s.pagamento}','${s.statusPagamento}','${s.dataServico}')
 Editar
 </button>
 
