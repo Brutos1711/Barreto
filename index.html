@@ -1044,6 +1044,10 @@ recebido += p.valor
 
 }
 
+})
+
+} // ← ESTA CHAVE FALTAVA
+
 if(pago < total){
 
 let saldo = total - pago
@@ -1161,9 +1165,13 @@ alertaHTML += `
 
 }
 
+}
+
 document.getElementById("painelAlertas").innerHTML = alertaHTML
 
 })
+
+}
 
 }
  
@@ -1506,6 +1514,8 @@ cep.value = cep.value
 
 window.buscarCliente = async function(){
 
+let user = auth.currentUser
+  
 let texto = document.getElementById("busca").value.toLowerCase()
 
 let qClientes = query(
