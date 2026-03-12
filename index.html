@@ -461,9 +461,10 @@ import {
 getAuth,
 signInWithEmailAndPassword,
 createUserWithEmailAndPassword,
-signOut
+signOut,
+onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-
+  
 import {
 getFirestore,
 collection,
@@ -473,9 +474,10 @@ doc,
 getDoc,
 updateDoc,
 deleteDoc,
-onSnapshot
+onSnapshot,
+query,
+where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyBP8lpsBu0QX6ROmK7Ligb9s9XvunBppzA",
@@ -491,6 +493,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
+
+onAuthStateChanged(auth,(user)=>{
+
+if(user){
+
+loginScreen.style.display="none"
+appScreen.style.display="block"
+
+abrirPagina("dashboard")
+
+}
+
+})  
 
 
 window.login = async function(){
@@ -541,14 +556,22 @@ let bairro = document.getElementById("bairro").value
 let cidade = document.getElementById("cidade").value
 
 // 🔎 VERIFICAR SE CLIENTE JÁ EXISTE
-let snap = await getDocs(collection(db,"clientes"))
+let user = auth.currentUser
 
+let q = query(
+collection(db,"clientes"),
+where("uid","==",user.uid)
+)
+
+let snap = await getDocs(q)
+  
 let existe = false
 
 snap.forEach(docSnap=>{
+
 let c = docSnap.data()
 
-if(c.nome.toLowerCase() == nome.toLowerCase()){
+if(c.nome.trim().toLowerCase() == nome.trim().toLowerCase()){
 existe = true
 }
 
@@ -570,8 +593,16 @@ window.clienteEditando=null
 
 }else{
 
+let user = auth.currentUser
+
 await addDoc(collection(db,"clientes"),{
-nome,telefone,cep,rua,bairro,cidade
+uid:user.uid,
+nome,
+telefone,
+cep,
+rua,
+bairro,
+cidade
 })
 
 }
@@ -617,7 +648,10 @@ window.servicoEditando=null
 
 let numeroOS = Date.now()
 
+let user = auth.currentUser
+
 await addDoc(collection(db,"servicos"),{
+uid:user.uid,
 numeroOS,
 cliente,
 descricao,
@@ -819,11 +853,18 @@ window.abrirCliente = async function(nome){
 
 window.clienteAtual = nome
 
-let snap = await getDocs(collection(db,"clientes"))
+let user = auth.currentUser
+
+let qClientes = query(
+collection(db,"clientes"),
+where("uid","==",user.uid)
+)
+
+let snapClientes = await getDocs(qClientes)
 
 let cliente = null
 
-snap.forEach(docSnap=>{
+snapClientes.forEach(docSnap=>{
 
 let c = docSnap.data()
 
@@ -857,8 +898,14 @@ document.getElementById("menu").classList.remove("active")
   
 window.listarHistorico = async function(cliente){
 
-let snap = await getDocs(collection(db,"servicos"))
+let user = auth.currentUser
 
+let q = query(
+collection(db,"servicos"),
+where("uid","==",user.uid)
+)
+
+let snap = await getDocs(q)
 let html=""
 
 snap.forEach(docSnap=>{
@@ -909,10 +956,22 @@ document.getElementById("historicoServicos").innerHTML = html
 
 window.carregarDashboard = function(){
 
-onSnapshot(collection(db,"servicos"), async (snapServicos)=>{
+let user = auth.currentUser
 
-let snapClientes = await getDocs(collection(db,"clientes"))
+let q = query(
+collection(db,"servicos"),
+where("uid","==",user.uid)
+)
 
+onSnapshot(q, async (snapServicos)=>{
+
+let qClientes = query(
+collection(db,"clientes"),
+where("uid","==",user.uid)
+)
+
+let snapClientes = await getDocs(qClientes)
+  
 let clientes = snapClientes.size
 let servicos = snapServicos.size
 
@@ -929,7 +988,7 @@ let hojeData = new Date()
 let amanhaData = new Date()
 amanhaData.setDate(amanhaData.getDate()+1)
 let amanha = amanhaData.toISOString().split("T")[0]
-  
+
 let listaHoje = []
 let listaAmanha = []
 let listaSemana = []
@@ -974,14 +1033,14 @@ s.pagamentos.forEach(p=>{
 
 pago += p.valor
 
+if(p.data){
+
 let partes = p.data.split("/")
 let dataPagamento = new Date(partes[2], partes[1]-1, partes[0])
 
 if(dataPagamento.getMonth()==mesAtual && dataPagamento.getFullYear()==anoAtual){
 recebido += p.valor
 }
-
-})
 
 }
 
@@ -1110,8 +1169,15 @@ document.getElementById("painelAlertas").innerHTML = alertaHTML
  
 window.listarClientes = async function(){
 
-let snap = await getDocs(collection(db,"clientes"))
+let user = auth.currentUser
 
+let q = query(
+collection(db,"clientes"),
+where("uid","==",user.uid)
+)
+
+let snap = await getDocs(q)
+  
 let html=""
 
 snap.forEach(docSnap=>{
@@ -1155,7 +1221,14 @@ document.getElementById("listaClientes").innerHTML = html
 
 window.listarTodosServicos = async function(){
 
-let snap = await getDocs(collection(db,"servicos"))
+let user = auth.currentUser
+
+let q = query(
+collection(db,"servicos"),
+where("uid","==",user.uid)
+)
+
+let snap = await getDocs(q)  
 
 let html=""
 
@@ -1224,8 +1297,15 @@ document.getElementById("listaTodosServicos").innerHTML = html
 
 window.gerarOS = async function(servico){
 
-let snapClientes = await getDocs(collection(db,"clientes"))
+let user = auth.currentUser
 
+let qClientes = query(
+collection(db,"clientes"),
+where("uid","==",user.uid)
+)
+
+let snapClientes = await getDocs(qClientes)
+  
 let cliente = {}
 
 snapClientes.forEach(docSnap=>{
@@ -1428,12 +1508,17 @@ window.buscarCliente = async function(){
 
 let texto = document.getElementById("busca").value.toLowerCase()
 
-let snap = await getDocs(collection(db,"clientes"))
+let qClientes = query(
+collection(db,"clientes"),
+where("uid","==",user.uid)
+)
 
+let snapClientes = await getDocs(qClientes)
+  
 let html=""
 
-snap.forEach(docSnap=>{
-
+snapClientes.forEach(docSnap=>{
+  
 let c = docSnap.data()
 
 if(c.nome.toLowerCase().includes(texto)){
