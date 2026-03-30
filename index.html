@@ -358,7 +358,7 @@ Barreto App
 
 <h2>Serviço</h2>
 
-<input id="clienteServico" placeholder="Nome cliente" oninput="autoPreencherTelefone()"
+<input id="clienteServico" placeholder="Nome cliente" oninput="autoPreencherTelefone()">
 <input id="telefoneServico" placeholder="Telefone do cliente">  
 <input id="descricaoServico" placeholder="Descrição">
 <input type="number" id="valorServico" placeholder="Valor">
@@ -553,8 +553,10 @@ location.reload()
 
 window.autoPreencherTelefone = async function(){
 
-  let nome = document.getElementById("clienteServico").value
+  let inputTel = document.getElementById("telefoneServico")
+  if(!inputTel) return // 👈 evita erro
 
+  let nome = document.getElementById("clienteServico")?.value
   if(!nome) return
 
   let user = auth.currentUser
@@ -570,7 +572,7 @@ window.autoPreencherTelefone = async function(){
     let c = docSnap.data()
 
     if(c.nome.toLowerCase() == nome.toLowerCase()){
-      document.getElementById("telefoneServico").value = c.telefone || ""
+      inputTel.value = c.telefone || ""
     }
   })
 
@@ -628,14 +630,17 @@ window.clienteEditando=null
 
 let user = auth.currentUser
 
-await addDoc(collection(db,"clientes"),{
-uid:user.uid,
-nome,
-telefone,
-cep,
-rua,
-bairro,
-cidade
+await addDoc(collection(db,"servicos"),{
+  uid: user.uid,
+  numeroOS: Date.now(),
+  cliente: cliente,
+  telefone: telefone,
+  descricao: descricao,
+  valor: Number(valor),
+  dataServico: dataServico,
+  pagamento: pagamento,
+  status: status,
+  statusPagamento: statusPagamento
 })
 
 }
@@ -662,7 +667,8 @@ let dataServico = document.getElementById("dataServico").value
 let pagamento = document.getElementById("formaPagamento").value
 let status = document.getElementById("statusServico").value
 let statusPagamento = document.getElementById("statusPagamento").value
-let telefone = document.getElementById("telefoneServico").value
+let telInput = document.getElementById("telefoneServico")
+let telefone = telInput ? telInput.value : ""
   
 if(window.servicoEditando){
 
@@ -839,11 +845,12 @@ carregarDashboard()
   
 window.abrirServicoCliente = function(){
 
-document.getElementById("clienteServico").value = window.clienteAtual
-
-autoPreencherTelefone() // 👈 ADICIONA ISSO
-
 abrirPagina("servicos")
+
+setTimeout(()=>{
+  document.getElementById("clienteServico").value = window.clienteAtual
+  autoPreencherTelefone()
+}, 100)
 
 }
   
@@ -1104,7 +1111,7 @@ if(s.statusPagamento !== "Pago" && saldo > 0){
 
 pagamentosPendentes.push({
   cliente: s.cliente,
-  telefone: s.telefone, // 👈 ESSENCIAL
+  telefone: s.telefone || "",
   saldo: saldo
 })
 }
