@@ -583,14 +583,21 @@ window.salvarCliente = async function(){
 let btn = event.target
 btn.disabled = true
 
-let nome = document.getElementById("nome").value
-let telefone = document.getElementById("telefone").value
-let cep = document.getElementById("cep").value
-let rua = document.getElementById("rua").value
-let bairro = document.getElementById("bairro").value
-let cidade = document.getElementById("cidade").value
+try{
 
-// 🔎 VERIFICAR SE CLIENTE JÁ EXISTE
+let nome = document.getElementById("nome").value.trim()
+let telefone = document.getElementById("telefone").value.trim()
+let cep = document.getElementById("cep").value.trim()
+let rua = document.getElementById("rua").value.trim()
+let bairro = document.getElementById("bairro").value.trim()
+let cidade = document.getElementById("cidade").value.trim()
+
+if(!nome){
+alert("Digite o nome do cliente")
+btn.disabled = false
+return
+}
+
 let user = auth.currentUser
 
 let q = query(
@@ -599,60 +606,69 @@ where("uid","==",user.uid)
 )
 
 let snap = await getDocs(q)
-  
-let existe = false
+
+let duplicado = false
 
 snap.forEach(docSnap=>{
 
 let c = docSnap.data()
 
-if(c.nome.trim().toLowerCase() == nome.trim().toLowerCase()){
-existe = true
+if(
+  (
+    c.nome.toLowerCase() === nome.toLowerCase() ||
+    (telefone && c.telefone === telefone)
+  ) &&
+  docSnap.id !== window.clienteEditando // 👈 ESSENCIAL
+){
+  duplicado = true
 }
 
 })
 
-if(existe){
-alert("Cliente já cadastrado")
+if(duplicado){
+alert("Cliente já cadastrado com esse nome ou telefone")
 btn.disabled = false
 return
-}  
-  
+}
+
+// 🔥 EDITAR
 if(window.clienteEditando){
 
 await updateDoc(doc(db,"clientes",window.clienteEditando),{
 nome,telefone,cep,rua,bairro,cidade
 })
 
-window.clienteEditando=null
+window.clienteEditando = null
+
+alert("Cliente atualizado")
 
 }else{
 
-let user = auth.currentUser
-
-await addDoc(collection(db,"servicos"),{
-  uid: user.uid,
-  numeroOS: Date.now(),
-  cliente: cliente,
-  telefone: telefone,
-  descricao: descricao,
-  valor: Number(valor),
-  dataServico: dataServico,
-  pagamento: pagamento,
-  status: status,
-  statusPagamento: statusPagamento
+// 🔥 NOVO CLIENTE (CORRIGIDO)
+await addDoc(collection(db,"clientes"),{
+uid: user.uid,
+nome,telefone,cep,rua,bairro,cidade
 })
+
+alert("Cliente cadastrado")
 
 }
 
+// atualizar lista
 listarClientes()
 
+// limpar campos
 document.getElementById("nome").value=""
 document.getElementById("telefone").value=""
 document.getElementById("cep").value=""
 document.getElementById("rua").value=""
 document.getElementById("bairro").value=""
 document.getElementById("cidade").value=""
+
+}catch(e){
+console.error(e)
+alert("Erro ao salvar cliente")
+}
 
 btn.disabled = false
 
