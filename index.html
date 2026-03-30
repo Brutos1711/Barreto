@@ -277,12 +277,12 @@ Barreto App
 
 <div id="painelAlertas" style="margin-top:20px"></div>
   
-<div class="cardDash">
+<div class="cardDash" onclick="abrirPagina('clientes')">
 <div class="titulo">👥 Clientes</div>
 <div id="dashClientes" class="numero">0</div>
 </div>
 
-<div class="cardDash">
+<div class="cardDash" onclick="abrirComFiltro('todos')">
 <div class="titulo">🛠 Serviços</div>
 <div id="dashServicos" class="numero">0</div>
 </div>
@@ -292,12 +292,12 @@ Barreto App
 <div id="dashRecebido" class="numero">0</div>
 </div>
 
-<div class="cardDash">
+<div class="cardDash" onclick="abrirComFiltro('receber')">
 <div class="titulo">🕒 A receber</div>
 <div id="dashReceber" class="numero">0</div>
 </div>
 
-<div class="cardDash">
+<div class="cardDash" onclick="abrirComFiltro('hoje')">
 <div class="titulo">📅 Serviços hoje</div>
 <div id="dashHoje" class="numero">0</div>
 </div>
@@ -358,7 +358,8 @@ Barreto App
 
 <h2>Serviço</h2>
 
-<input id="clienteServico" placeholder="Nome cliente">
+<input id="clienteServico" placeholder="Nome cliente" oninput="autoPreencherTelefone()"
+<input id="telefoneServico" placeholder="Telefone do cliente">  
 <input id="descricaoServico" placeholder="Descrição">
 <input type="number" id="valorServico" placeholder="Valor">
 
@@ -422,6 +423,10 @@ function abrirPagina(p){
 
 document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
 
+if(p != "todosServicos"){
+  window.filtroDashboard = null
+}
+  
 if(p=="dashboard"){
 document.getElementById("paginaDashboard").style.display="block"
 carregarDashboard()
@@ -457,6 +462,8 @@ document.getElementById("menu").classList.remove("active")
 
 <script type="module">
 
+window.filtroDashboard = null
+  
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
 
 import { 
@@ -544,7 +551,31 @@ location.reload()
 
 }
 
+window.autoPreencherTelefone = async function(){
 
+  let nome = document.getElementById("clienteServico").value
+
+  if(!nome) return
+
+  let user = auth.currentUser
+
+  let q = query(
+    collection(db,"clientes"),
+    where("uid","==",user.uid)
+  )
+
+  let snap = await getDocs(q)
+
+  snap.forEach(docSnap=>{
+    let c = docSnap.data()
+
+    if(c.nome.toLowerCase() == nome.toLowerCase()){
+      document.getElementById("telefoneServico").value = c.telefone || ""
+    }
+  })
+
+}
+  
 window.salvarCliente = async function(){
 
 let btn = event.target
@@ -631,7 +662,8 @@ let dataServico = document.getElementById("dataServico").value
 let pagamento = document.getElementById("formaPagamento").value
 let status = document.getElementById("statusServico").value
 let statusPagamento = document.getElementById("statusPagamento").value
-
+let telefone = document.getElementById("telefoneServico").value
+  
 if(window.servicoEditando){
 
 await updateDoc(doc(db,"servicos",window.servicoEditando),{
@@ -653,15 +685,13 @@ let numeroOS = Date.now()
 let user = auth.currentUser
 
 await addDoc(collection(db,"servicos"),{
-uid:user.uid,
-numeroOS,
-cliente,
-descricao,
-valor:Number(valor),
-dataServico,
-pagamento,
-status,
-statusPagamento
+  cliente: cliente,
+  telefone: telefone, // 👈 AQUI
+  descricao: descricao,
+  valor: Number(valor),
+  dataServico: dataServico,
+  statusPagamento: statusPagamento,
+  uid: user.uid
 })
 
 }
@@ -671,9 +701,10 @@ listarTodosServicos()
 document.getElementById("clienteServico").value=""
 document.getElementById("descricaoServico").value=""
 document.getElementById("valorServico").value=""
-
+document.getElementById("dataServico").value=""
+  
 alert("Serviço salvo")
-
+abrirPagina("dashboard")
 }
   
 window.gerarRelatorio = async function(){
@@ -777,9 +808,9 @@ let pagamentos = dados.pagamentos || []
 
 let soma = pagamentos.reduce((t,p)=> t + p.valor,0)
 
-if(soma + valor > total){
-alert("Pagamento ultrapassa o valor do serviço")
-return
+if((soma + valor) > total){
+  alert("Pagamento ultrapassa o valor do serviço")
+  return
 }
 
 pagamentos.push({
@@ -790,8 +821,8 @@ data:new Date().toLocaleDateString()
 
 let status = "A receber"
 
-if(soma + valor == total){
-status = "Pago"
+if((soma + valor).toFixed(2) == total.toFixed(2)){
+  status = "Pago"
 }
 
 await updateDoc(ref,{
@@ -809,6 +840,8 @@ carregarDashboard()
 window.abrirServicoCliente = function(){
 
 document.getElementById("clienteServico").value = window.clienteAtual
+
+autoPreencherTelefone() // 👈 ADICIONA ISSO
 
 abrirPagina("servicos")
 
@@ -973,7 +1006,11 @@ collection(db,"servicos"),
 where("uid","==",user.uid)
 )
 
-onSnapshot(q, async (snapServicos)=>{
+if(window.unsubscribeDashboard){
+  window.unsubscribeDashboard()
+}
+
+window.unsubscribeDashboard = onSnapshot(q, async (snapServicos)=>{
 
 let qClientes = query(
 collection(db,"clientes"),
@@ -1009,6 +1046,8 @@ snapServicos.forEach(docSnap=>{
 let s = docSnap.data()
 
 /* DATA DO SERVIÇO */
+
+if(!s.dataServico) return
 
 let dataServico = new Date(s.dataServico)
 let diffDias = Math.floor((dataServico - hojeData) / (1000*60*60*24))
@@ -1056,19 +1095,18 @@ recebido += p.valor
 
 })
 
-} // ← ESTA CHAVE FALTAVA
-
-if(pago < total){
+}
 
 let saldo = total - pago
 
-receber += saldo
+if(s.statusPagamento !== "Pago" && saldo > 0){
+  receber += saldo
 
 pagamentosPendentes.push({
-cliente: s.cliente,
-saldo: saldo
+  cliente: s.cliente,
+  telefone: s.telefone, // 👈 ESSENCIAL
+  saldo: saldo
 })
-
 }
 
 })
@@ -1079,6 +1117,11 @@ document.getElementById("dashClientes").innerText = clientes
 document.getElementById("dashServicos").innerText = servicos
 document.getElementById("dashRecebido").innerText = "R$ "+recebido.toFixed(2)
 document.getElementById("dashReceber").innerText = "R$ "+receber.toFixed(2)
+  if(receber > 0){
+  document.getElementById("dashReceber").style.color = "red"
+}else{
+  document.getElementById("dashReceber").style.color = "black"
+}
 document.getElementById("dashHoje").innerText = servicosHoje
 
 /* SERVIÇOS DE HOJE */
@@ -1166,21 +1209,32 @@ alertaHTML += "<div>Nenhum pagamento pendente</div>"
 pagamentosPendentes.forEach(s=>{
 
 alertaHTML += `
-<div>
+<div style="cursor:pointer;color:#007aff"
+onclick="abrirWhats('${s.cliente}','${s.telefone}',${s.saldo})">
+
 • ${s.cliente} - R$ ${s.saldo.toFixed(2)}
+
 </div>
 `
 
 })
 
-document.getElementById("painelAlertas").innerHTML = alertaHTML
-
 }
+
+  document.getElementById("painelAlertas").innerHTML = alertaHTML
 
 }) // ← FECHA onSnapshot
 
 }
- 
+
+window.abrirComFiltro = function(tipo){
+
+  window.filtroDashboard = tipo
+
+  abrirPagina("todosServicos")
+
+}
+  
 window.listarClientes = async function(){
 
 let user = auth.currentUser
@@ -1233,6 +1287,36 @@ document.getElementById("listaClientes").innerHTML = html
 
 }
 
+window.abrirWhats = function(nome, telefone, saldo){
+
+  if(!telefone){
+    alert("Cliente sem telefone cadastrado")
+    return
+  }
+
+  let numero = telefone.replace(/\D/g, "")
+
+  if(!numero){
+    alert("Telefone inválido")
+    return
+  }
+
+  if(!numero.startsWith("55")){
+    numero = "55" + numero
+  }
+
+  let mensagem = `Olá ${nome}, tudo bem? 😊
+
+Verifiquei aqui e ficou pendente o valor de R$ ${saldo.toFixed(2)}.
+
+Se já realizou o pagamento, pode desconsiderar 👍
+Qualquer dúvida estou à disposição.`
+
+  let url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
+
+  window.open(url, "_blank")
+}
+  
 window.listarTodosServicos = async function(){
 
 let user = auth.currentUser
@@ -1250,6 +1334,21 @@ snap.forEach(docSnap=>{
 
 let s = docSnap.data()
 let id = docSnap.id
+
+let hoje = new Date().toISOString().split("T")[0]
+
+// 🔥 FILTRO DO DASHBOARD
+if(window.filtroDashboard){
+
+  if(window.filtroDashboard == "receber" && s.statusPagamento == "Pago"){
+    return
+  }
+
+  if(window.filtroDashboard == "hoje" && s.dataServico != hoje){
+    return
+  }
+
+}
 
 // montar histórico de pagamentos
 let pagamentosHTML = ""
