@@ -740,11 +740,10 @@ where("uid","==",user.uid)
 
 let snap = await getDocs(q)
   
-let recebido = 0
+let recebidoMes = 0
+let recebidoTotal = 0
 let receber = 0
 let servicos = 0
-let servicosHoje = 0
-let hoje = new Date().toISOString().split("T")[0]
 
 let mesAtual = new Date().getMonth()
 let anoAtual = new Date().getFullYear()
@@ -756,7 +755,6 @@ let s = docSnap.data()
 servicos++
 
 let totalServico = s.valor || 0
-
 let pago = 0
 
 if(s.pagamentos){
@@ -766,10 +764,15 @@ s.pagamentos.forEach(p=>{
 let partes = p.data.split("/")
 let dataPagamento = new Date(partes[2], partes[1]-1, partes[0])
 
-if(dataPagamento.getMonth() == mesAtual && dataPagamento.getFullYear() == anoAtual){
+// 🔥 TOTAL GERAL
+recebidoTotal += p.valor
 
-recebido += p.valor
-
+// 🔥 SOMENTE MÊS ATUAL
+if(
+dataPagamento.getMonth() == mesAtual &&
+dataPagamento.getFullYear() == anoAtual
+){
+recebidoMes += p.valor
 }
 
 pago += p.valor
@@ -778,6 +781,7 @@ pago += p.valor
 
 }
 
+// 🔥 CALCULAR A RECEBER
 if(totalServico > pago){
 receber += (totalServico - pago)
 }
@@ -788,7 +792,9 @@ document.getElementById("relatorio").innerHTML = `
 
 📊 Serviços cadastrados: ${servicos}<br><br>
 
-💰 Recebido este mês: R$ ${recebido.toFixed(2)}<br><br>
+💰 Recebido este mês: R$ ${recebidoMes.toFixed(2)}<br><br>
+
+💵 Total recebido geral: R$ ${recebidoTotal.toFixed(2)}<br><br>
 
 🕒 Total a receber: R$ ${receber.toFixed(2)}
 
