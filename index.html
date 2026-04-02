@@ -708,11 +708,16 @@ let user = auth.currentUser
 
 await addDoc(collection(db,"servicos"),{
   cliente: cliente,
-  telefone: telefone, // 👈 AQUI
+  telefone: telefone,
   descricao: descricao,
   valor: Number(valor),
   dataServico: dataServico,
   statusPagamento: statusPagamento,
+  pagamentos: statusPagamento === "Pago" ? [{
+    valor: Number(valor),
+    forma: pagamento,
+    data: new Date().toLocaleDateString()
+  }] : [],
   uid: user.uid
 })
 
@@ -739,62 +744,44 @@ where("uid","==",user.uid)
 )
 
 let snap = await getDocs(q)
-  
-let recebidoMes = 0
-let recebidoTotal = 0
-let receber = 0
-let servicos = 0
 
-let mesAtual = new Date().getMonth()
-let anoAtual = new Date().getFullYear()
+let faturado = 0
+let recebido = 0
+let receber = 0
 
 snap.forEach(docSnap=>{
 
 let s = docSnap.data()
 
-servicos++
-
-let totalServico = s.valor || 0
+let total = s.valor || 0
 let pago = 0
 
+faturado += total
+
 if(s.pagamentos){
-
-s.pagamentos.forEach(p=>{
-
-let partes = p.data.split("/")
-let dataPagamento = new Date(partes[2], partes[1]-1, partes[0])
-
-// 🔥 TOTAL GERAL
-recebidoTotal += p.valor
-
-// 🔥 SOMENTE MÊS ATUAL
-if(
-dataPagamento.getMonth() == mesAtual &&
-dataPagamento.getFullYear() == anoAtual
-){
-recebidoMes += p.valor
+  s.pagamentos.forEach(p=>{
+    pago += p.valor
+  })
 }
 
-pago += p.valor
-
-})
-
+// se não tem pagamentos mas está marcado como pago
+if(!s.pagamentos && s.statusPagamento == "Pago"){
+  pago = total
 }
 
-// 🔥 CALCULAR A RECEBER
-if(totalServico > pago){
-receber += (totalServico - pago)
+recebido += pago
+
+if(total > pago){
+  receber += (total - pago)
 }
 
 })
 
 document.getElementById("relatorio").innerHTML = `
 
-📊 Serviços cadastrados: ${servicos}<br><br>
+📊 Total faturado: R$ ${faturado.toFixed(2)}<br><br>
 
-💰 Recebido este mês: R$ ${recebidoMes.toFixed(2)}<br><br>
-
-💵 Total recebido geral: R$ ${recebidoTotal.toFixed(2)}<br><br>
+💰 Total recebido: R$ ${recebido.toFixed(2)}<br><br>
 
 🕒 Total a receber: R$ ${receber.toFixed(2)}
 
@@ -809,8 +796,6 @@ if(confirm("Deseja excluir o serviço?")){
 await deleteDoc(doc(db,"servicos",id))
 
 listarTodosServicos()
-
-}
 
 }
 
