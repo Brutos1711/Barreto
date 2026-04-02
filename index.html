@@ -519,6 +519,8 @@ abrirPagina("dashboard")
 
 window.login = async function(){
 
+try{
+
 let email = document.getElementById("email").value
 let pass = document.getElementById("password").value
 
@@ -527,7 +529,13 @@ await signInWithEmailAndPassword(auth,email,pass)
 loginScreen.style.display="none"
 appScreen.style.display="block"
 abrirPagina("dashboard")
-  
+
+}catch(e){
+
+alert("Erro ao fazer login: " + e.message)
+
+}
+
 }
 
 
