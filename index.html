@@ -393,8 +393,36 @@ Barreto App
 
 <h2>Financeiro</h2>
 
-<div id="relatorio">
-💰 Total faturado: R$ 0
+<div class="cardDash">
+<div class="titulo">Saldo</div>
+<div id="saldoTotal" class="numero">R$ 0</div>
+</div>
+
+<div class="cardDash">
+<div class="titulo">Entradas</div>
+<div id="totalEntradas" class="numero">R$ 0</div>
+</div>
+
+<div class="cardDash">
+<div class="titulo">Saídas</div>
+<div id="totalSaidas" class="numero">R$ 0</div>
+</div>
+
+<hr style="margin:20px 0">
+
+<h3>Adicionar gasto</h3>
+
+<input id="descGasto" placeholder="Descrição">
+<input type="number" id="valorGasto" placeholder="Valor">
+
+<button onclick="adicionarGasto()">Salvar Gasto</button>
+
+<hr style="margin:20px 0">
+
+<h3>Movimentações</h3>
+
+<div id="listaFinanceiro"></div>
+
 </div>
 
 <button onclick="gerarRelatorio()">Atualizar</button>
@@ -447,6 +475,7 @@ document.getElementById("paginaServicos").style.display="block"
 
 if(p=="relatorios"){
 document.getElementById("paginaRelatorios").style.display="block"
+carregarFinanceiro()
 }
 
 if(p=="todosServicos"){
@@ -503,19 +532,6 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
-// 🔥 SEGUNDO FIREBASE (FINANÇAS)
-const firebaseConfigFinancas = {
-  apiKey: "AIzaSyDC9bzY8IsavRdL9N4L8B0IQgOSQ-qgE_Y",
-  authDomain: "financasbarreto-30f9d.firebaseapp.com",
-  projectId: "financasbarreto-30f9d",
-  storageBucket: "financasbarreto-30f9d.firebasestorage.app",
-  messagingSenderId: "673333294399",
-  appId: "1:673333294399:web:86fc5b776191e42d648f8a"
-};
-
-const appFinancas = initializeApp(firebaseConfigFinancas, "financasApp");
-const db = getFirestore(appFinancas);
-  
 onAuthStateChanged(auth,(user)=>{
 
 if(user){
@@ -716,7 +732,7 @@ async function enviarParaFinanceiro(servicoId, cliente, valor){
   // 🔁 SE JÁ EXISTE → ATUALIZA
   if(!snap.empty){
     let docExistente = snap.docs[0];
-    await updateDoc(doc(db, "usuarios", user.uid, "extras", docExistente.id), dados);
+    await updateDoc(doc(db, "usuarios", user.uid, "financeiro", docExistente.id), dados);
     console.log("Atualizado no financeiro");
   } 
   
@@ -751,9 +767,8 @@ status,
 statusPagamento
 })
 
-if(statusPagamento === "Pago"){
-  await enviarParaFinanceiro(window.servicoEditando, cliente, Number(valor));
-}
+// 🔥 SEMPRE sincroniza com financeiro
+await enviarParaFinanceiro(window.servicoEditando, cliente, Number(valor));
 
 window.servicoEditando=null
 
@@ -764,9 +779,7 @@ let numeroOS = Date.now()
 let user = auth.currentUser
 
 let docRef = await addDoc(collection(db,"servicos"),{
-  if(statusPagamento === "Pago"){
-  await enviarParaFinanceiro(docRef.id, cliente, Number(valor));
-}
+  numeroOS: numeroOS,
   cliente: cliente,
   telefone: telefone,
   descricao: descricao,
@@ -781,6 +794,9 @@ let docRef = await addDoc(collection(db,"servicos"),{
   uid: user.uid
 })
 
+// 🔥 AGORA SIM (fora do addDoc)
+if(statusPagamento === "Pago"){
+  await enviarParaFinanceiro(docRef.id, cliente, Number(valor));
 }
 
 listarTodosServicos()
