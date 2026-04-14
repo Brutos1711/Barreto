@@ -514,7 +514,7 @@ const firebaseConfigFinancas = {
 };
 
 const appFinancas = initializeApp(firebaseConfigFinancas, "financasApp");
-const dbFinancas = getFirestore(appFinancas);
+const db = getFirestore(appFinancas);
   
 onAuthStateChanged(auth,(user)=>{
 
@@ -700,7 +700,7 @@ async function enviarParaFinanceiro(servicoId, cliente, valor){
   let user = auth.currentUser;
   if(!user) return;
 
-  const ref = collection(dbFinancas, "usuarios", user.uid, "extras");
+  const ref = collection(db, "usuarios", user.uid, "financeiro");
 
   const q = query(ref, where("servicoId", "==", servicoId));
   const snap = await getDocs(q);
@@ -716,7 +716,7 @@ async function enviarParaFinanceiro(servicoId, cliente, valor){
   // 🔁 SE JÁ EXISTE → ATUALIZA
   if(!snap.empty){
     let docExistente = snap.docs[0];
-    await updateDoc(doc(dbFinancas, "usuarios", user.uid, "extras", docExistente.id), dados);
+    await updateDoc(doc(db, "usuarios", user.uid, "extras", docExistente.id), dados);
     console.log("Atualizado no financeiro");
   } 
   
