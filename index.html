@@ -503,6 +503,19 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
+// 🔥 SEGUNDO FIREBASE (FINANÇAS)
+const firebaseConfigFinancas = {
+  apiKey: "AIzaSyDC9bzY8IsavRdL9N4L8B0IQgOSQ-qgE_Y",
+  authDomain: "financasbarreto-30f9d.firebaseapp.com",
+  projectId: "financasbarreto-30f9d",
+  storageBucket: "financasbarreto-30f9d.firebasestorage.app",
+  messagingSenderId: "673333294399",
+  appId: "1:673333294399:web:86fc5b776191e42d648f8a"
+};
+
+const appFinancas = initializeApp(firebaseConfigFinancas, "financasApp");
+const dbFinancas = getFirestore(appFinancas);
+  
 onAuthStateChanged(auth,(user)=>{
 
 if(user){
@@ -681,6 +694,38 @@ alert("Erro ao salvar cliente")
 btn.disabled = false
 
 }
+
+async function enviarParaFinanceiro(servicoId, cliente, valor){
+
+  let user = auth.currentUser;
+  if(!user) return;
+
+  const ref = collection(dbFinancas, "usuarios", user.uid, "extras");
+
+  const q = query(ref, where("servicoId", "==", servicoId));
+  const snap = await getDocs(q);
+
+  let dados = {
+    valor: valor,
+    categoria: "Serviço - " + cliente,
+    data: new Date().toISOString().split("T")[0],
+    tipo: "entrada",
+    servicoId: servicoId
+  };
+
+  // 🔁 SE JÁ EXISTE → ATUALIZA
+  if(!snap.empty){
+    let docExistente = snap.docs[0];
+    await updateDoc(doc(dbFinancas, "usuarios", user.uid, "extras", docExistente.id), dados);
+    console.log("Atualizado no financeiro");
+  } 
+  
+  // ➕ SE NÃO EXISTE → CRIA
+  else {
+    await addDoc(ref, dados);
+    console.log("Criado no financeiro");
+  }
+}
   
 window.salvarServico = async function(){
 
@@ -706,6 +751,10 @@ status,
 statusPagamento
 })
 
+if(statusPagamento === "Pago"){
+  await enviarParaFinanceiro(window.servicoEditando, cliente, Number(valor));
+}
+
 window.servicoEditando=null
 
 }else{
@@ -714,7 +763,10 @@ let numeroOS = Date.now()
 
 let user = auth.currentUser
 
-await addDoc(collection(db,"servicos"),{
+let docRef = await addDoc(collection(db,"servicos"),{
+  if(statusPagamento === "Pago"){
+  await enviarParaFinanceiro(docRef.id, cliente, Number(valor));
+}
   cliente: cliente,
   telefone: telefone,
   descricao: descricao,
@@ -842,6 +894,8 @@ forma:forma,
 data:new Date().toLocaleDateString()
 })
 
+await enviarParaFinanceiro(id, dados.cliente, valor);
+  
 let status = "A receber"
 
 if((soma + valor).toFixed(2) == total.toFixed(2)){
