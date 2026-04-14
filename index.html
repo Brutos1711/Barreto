@@ -425,10 +425,6 @@ Barreto App
 
 </div>
 
-<button onclick="gerarRelatorio()">Atualizar</button>
-
-</div>
-
 </div>
 
 <div id="paginaTodosServicos" class="card pagina">
@@ -721,13 +717,13 @@ async function enviarParaFinanceiro(servicoId, cliente, valor){
   const q = query(ref, where("servicoId", "==", servicoId));
   const snap = await getDocs(q);
 
-  let dados = {
-    valor: valor,
-    categoria: "Serviço - " + cliente,
-    data: new Date().toISOString().split("T")[0],
-    tipo: "entrada",
-    servicoId: servicoId
-  };
+let dados = {
+  valor: valor,
+  descricao: "Serviço - " + cliente, // 👈 muda aqui
+  data: new Date().toISOString().split("T")[0],
+  tipo: "entrada",
+  servicoId: servicoId
+};
 
   // 🔁 SE JÁ EXISTE → ATUALIZA
   if(!snap.empty){
@@ -910,7 +906,7 @@ forma:forma,
 data:new Date().toLocaleDateString()
 })
 
-await enviarParaFinanceiro(id, dados.cliente, valor);
+await enviarParaFinanceiro(id, dados.cliente, dados.valor);
   
 let status = "A receber"
 
@@ -1410,7 +1406,78 @@ Qualquer dúvida estou à disposição.`
 
   window.open(url, "_blank")
 }
-  
+
+  // ================= FINANCEIRO =================
+
+window.adicionarGasto = async function(){
+
+  let user = auth.currentUser
+
+  let desc = document.getElementById("descGasto").value
+  let valor = Number(document.getElementById("valorGasto").value)
+
+  if(!desc || !valor){
+    alert("Preencha os campos")
+    return
+  }
+
+  await addDoc(collection(db, "usuarios", user.uid, "financeiro"), {
+    descricao: desc,
+    valor: valor,
+    tipo: "saida",
+    data: new Date().toISOString().split("T")[0]
+  })
+
+  document.getElementById("descGasto").value=""
+  document.getElementById("valorGasto").value=""
+
+  carregarFinanceiro()
+}
+
+
+
+window.carregarFinanceiro = function(){
+
+  let user = auth.currentUser
+
+  let ref = collection(db, "usuarios", user.uid, "financeiro")
+
+  onSnapshot(ref, (snap)=>{
+
+    let entradas = 0
+    let saidas = 0
+    let html = ""
+
+    snap.forEach(docSnap => {
+
+      let f = docSnap.data()
+
+      if(f.tipo == "entrada"){
+        entradas += f.valor
+      } else {
+        saidas += f.valor
+      }
+
+      html += `
+        <div style="border-bottom:1px solid #eee;padding:10px">
+          <b>${f.descricao}</b><br>
+          ${f.tipo == "entrada" ? "💰 Entrada" : "💸 Saída"}<br>
+          R$ ${f.valor}<br>
+          📅 ${f.data}
+        </div>
+      `
+    })
+
+    let saldo = entradas - saidas
+
+    document.getElementById("saldoTotal").innerText = "R$ " + saldo.toFixed(2)
+    document.getElementById("totalEntradas").innerText = "R$ " + entradas.toFixed(2)
+    document.getElementById("totalSaidas").innerText = "R$ " + saidas.toFixed(2)
+
+    document.getElementById("listaFinanceiro").innerHTML = html
+
+  })
+}
 window.listarTodosServicos = async function(){
 
 let user = auth.currentUser
