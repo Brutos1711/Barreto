@@ -1739,13 +1739,9 @@ janela.print()
   
 window.buscarCEP = async function(){
 
-let cep = document.getElementById("cep").value.replace(/\D/g,"")
-
-if(cep.length != 8){
-return
-}
-
 try{
+
+let cep = document.getElementById("cep").value
 
 let res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
 let dados = await res.json()
