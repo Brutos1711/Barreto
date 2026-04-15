@@ -190,6 +190,27 @@ text-align:left;
 color:#007aff;
 cursor:pointer;
 }
+
+.cardMov{
+background:#ffffff;
+padding:14px;
+border-radius:14px;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.valorEntrada{
+color:#16a34a;
+font-weight:600;
+}
+
+.valorSaida{
+color:#dc2626;
+font-weight:600;
+}  
   
 </style>
 </head>
@@ -391,7 +412,9 @@ Barreto App
 
 <div id="paginaRelatorios" class="card pagina">
 
-<h2>Financeiro</h2>
+<h2>💰 Financeiro</h2>
+
+<div class="dashboard">
 
 <div class="cardDash">
 <div class="titulo">Saldo</div>
@@ -408,9 +431,29 @@ Barreto App
 <div id="totalSaidas" class="numero">R$ 0</div>
 </div>
 
+</div>
+
 <hr style="margin:20px 0">
 
-<h3>Adicionar gasto</h3>
+<select id="filtroMes" onchange="carregarFinanceiro()">
+<option value="">Todos</option>
+<option value="01">Janeiro</option>
+<option value="02">Fevereiro</option>
+<option value="03">Março</option>
+<option value="04">Abril</option>
+<option value="05">Maio</option>
+<option value="06">Junho</option>
+<option value="07">Julho</option>
+<option value="08">Agosto</option>
+<option value="09">Setembro</option>
+<option value="10">Outubro</option>
+<option value="11">Novembro</option>
+<option value="12">Dezembro</option>
+</select>
+
+<hr style="margin:20px 0">
+
+<h3>➖ Novo Gasto</h3>
 
 <input id="descGasto" placeholder="Descrição">
 <input type="number" id="valorGasto" placeholder="Valor">
@@ -419,12 +462,12 @@ Barreto App
 
 <hr style="margin:20px 0">
 
-<h3>Movimentações</h3>
+<h3>📄 Movimentações</h3>
 
 <div id="listaFinanceiro"></div>
 
 </div>
-
+  
 </div>
 
 <div id="paginaTodosServicos" class="card pagina">
@@ -709,34 +752,19 @@ btn.disabled = false
 
 async function enviarParaFinanceiro(servicoId, cliente, valor){
 
-  let user = auth.currentUser;
-  if(!user) return;
+let user = auth.currentUser
+if(!user) return
 
-  const ref = collection(db, "usuarios", user.uid, "financeiro");
+// 🔥 salva direto como ENTRADA
+await addDoc(collection(db,"gastos"),{
+uid:user.uid,
+descricao:"Serviço - " + cliente,
+valor:Number(valor),
+tipo:"entrada",
+servicoId:servicoId,
+data:new Date().toISOString().split("T")[0]
+})
 
-  const q = query(ref, where("servicoId", "==", servicoId));
-  const snap = await getDocs(q);
-
-let dados = {
-  valor: valor,
-  descricao: "Serviço - " + cliente, // 👈 muda aqui
-  data: new Date().toISOString().split("T")[0],
-  tipo: "entrada",
-  servicoId: servicoId
-};
-
-  // 🔁 SE JÁ EXISTE → ATUALIZA
-  if(!snap.empty){
-    let docExistente = snap.docs[0];
-    await updateDoc(doc(db, "usuarios", user.uid, "financeiro", docExistente.id), dados);
-    console.log("Atualizado no financeiro");
-  } 
-  
-  // ➕ SE NÃO EXISTE → CRIA
-  else {
-    await addDoc(ref, dados);
-    console.log("Criado no financeiro");
-  }
 }
   
 window.salvarServico = async function(){
@@ -908,7 +936,9 @@ forma:forma,
 data:new Date().toLocaleDateString()
 })
 
-await enviarParaFinanceiro(id, dados.cliente, dados.valor);
+if((soma + valor).toFixed(2) == total.toFixed(2)){
+  await enviarParaFinanceiro(id, dados.cliente, dados.valor);
+}
   
 let status = "A receber"
 
@@ -1409,77 +1439,108 @@ Qualquer dúvida estou à disposição.`
   window.open(url, "_blank")
 }
 
-  // ================= FINANCEIRO =================
+window.carregarFinanceiro = async function(){
 
+let user = auth.currentUser
+let mes = document.getElementById("filtroMes").value
+
+let totalEntradas = 0
+let totalSaidas = 0
+let html = ""
+
+// 🔹 SERVIÇOS = ENTRADAS
+// 🔹 GASTOS = SAÍDAS
+let qGastos = query(
+collection(db,"gastos"),
+where("uid","==",user.uid)
+)
+
+let snapGastos = await getDocs(qGastos)
+
+snapGastos.forEach(docSnap=>{
+let g = docSnap.data()
+
+let mesGasto = g.data?.split("-")[1]
+
+if(!mes || mes === mesGasto){
+
+if(g.tipo === "entrada"){
+totalEntradas += Number(g.valor)
+}else{
+totalSaidas += Number(g.valor)
+}
+
+let icone = g.tipo === "entrada" ? "💰" : "💸"
+let classe = g.tipo === "entrada" ? "valorEntrada" : "valorSaida"
+
+html += `
+<div class="cardMov">
+<span>${icone} ${g.descricao}</span>
+<span class="${classe}">
+${Number(g.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+</span>
+</div>
+`
+
+}
+
+})
+
+// 🔹 SALDO
+let saldo = totalEntradas - totalSaidas
+
+document.getElementById("saldoTotal").innerText =
+saldo.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+
+document.getElementById("totalEntradas").innerText =
+totalEntradas.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+
+document.getElementById("totalSaidas").innerText =
+totalSaidas.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+
+document.getElementById("listaFinanceiro").innerHTML = html
+
+}
+
+window.salvarMeta = async function(){
+
+let user = auth.currentUser
+let valor = document.getElementById("inputMeta").value
+
+await addDoc(collection(db,"metas"),{
+uid:user.uid,
+valor:Number(valor)
+})
+
+alert("Meta salva")
+
+carregarFinanceiro()
+
+}
+  
 window.adicionarGasto = async function(){
 
-  let user = auth.currentUser
+let user = auth.currentUser
 
-  let desc = document.getElementById("descGasto").value
-  let valor = Number(document.getElementById("valorGasto").value)
+let descricao = document.getElementById("descGasto").value
+let valor = document.getElementById("valorGasto").value
+let categoria = ""
+  
+await addDoc(collection(db,"gastos"),{
+uid:user.uid,
+descricao,
+valor:Number(valor),
+categoria,
+tipo:"saida",
+data:new Date().toISOString().split("T")[0]
+})
 
-  if(!desc || !valor){
-    alert("Preencha os campos")
-    return
-  }
+alert("Gasto salvo")
 
-  await addDoc(collection(db, "usuarios", user.uid, "financeiro"), {
-    descricao: desc,
-    valor: valor,
-    tipo: "saida",
-    data: new Date().toISOString().split("T")[0]
-  })
+carregarFinanceiro()
 
-  document.getElementById("descGasto").value=""
-  document.getElementById("valorGasto").value=""
-
-  carregarFinanceiro()
 }
-
-
-
-window.carregarFinanceiro = function(){
-
-  let user = auth.currentUser
-
-  let ref = collection(db, "usuarios", user.uid, "financeiro")
-
-  onSnapshot(ref, (snap)=>{
-
-    let entradas = 0
-    let saidas = 0
-    let html = ""
-
-    snap.forEach(docSnap => {
-
-      let f = docSnap.data()
-
-      if(f.tipo == "entrada"){
-        entradas += f.valor
-      } else {
-        saidas += f.valor
-      }
-
-      html += `
-        <div style="border-bottom:1px solid #eee;padding:10px">
-          <b>${f.descricao}</b><br>
-          ${f.tipo == "entrada" ? "💰 Entrada" : "💸 Saída"}<br>
-          R$ ${f.valor}<br>
-          📅 ${f.data}
-        </div>
-      `
-    })
-
-    let saldo = entradas - saidas
-
-    document.getElementById("saldoTotal").innerText = "R$ " + saldo.toFixed(2)
-    document.getElementById("totalEntradas").innerText = "R$ " + entradas.toFixed(2)
-    document.getElementById("totalSaidas").innerText = "R$ " + saidas.toFixed(2)
-
-    document.getElementById("listaFinanceiro").innerHTML = html
-
-  })
-}
+  
 window.listarTodosServicos = async function(){
 
 let user = auth.currentUser
