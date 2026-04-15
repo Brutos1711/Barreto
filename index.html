@@ -197,9 +197,17 @@ document.body.innerHTML = `
 <div style="display:flex;justify-content:center;align-items:center;height:100vh">
 <div class="card">
 <h2>Cadastro</h2>
+
 <input id="user" class="input" placeholder="Usuário">
 <input id="pass" type="password" class="input" placeholder="Senha">
+
 <button class="btn" onclick="cadastrar()">Criar conta</button>
+
+<p style="margin-top:10px;text-align:center;cursor:pointer"
+onclick="telaLogin()">
+Já tenho conta
+</p>
+
 </div>
 </div>`
 }
@@ -216,10 +224,18 @@ document.body.innerHTML = `
 <div style="display:flex;justify-content:center;align-items:center;height:100vh">
 <div class="card">
 <h2>Login</h2>
+
 <input id="user" class="input" placeholder="Usuário">
 <input id="pass" type="password" class="input" placeholder="Senha">
+
 <button class="btn" onclick="login()">Entrar</button>
 <button class="btn" onclick="biometria()">🔐 Entrar com digital</button>
+
+<p style="margin-top:10px;text-align:center;cursor:pointer"
+onclick="telaCadastro()">
+Criar conta
+</p>
+
 </div>
 </div>`
 }
