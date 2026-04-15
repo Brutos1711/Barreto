@@ -1,1917 +1,318 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barreto App Premium 2.0</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#007aff">
-
-<link rel="apple-touch-icon" href="icon.png">
-  
-<title>Barreto App</title>
+<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-
-body{
-margin:0;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-background:#f2f2f7;
-color:#1c1c1e;
-}
-
-/* TOPBAR */
-
-.topbar{
-background:#ffffff;
-border-bottom:1px solid #e5e5ea;
-padding:15px;
-font-size:18px;
-display:flex;
-align-items:center;
-font-weight:600;
-}
-
-.menuBtn{
-font-size:22px;
-margin-right:15px;
-cursor:pointer;
-}
-
-/* MENU */
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;}
+.dark{background:#0f172a;color:#e2e8f0}
+.dark .card{background:#1e293b}
 
 .sidebar{
-position:fixed;
-top:0;
-left:-260px;
-width:240px;
-height:100%;
-background:white;
-border-right:1px solid #e5e5ea;
-padding-top:20px;
-transition:0.3s;
-z-index:1000;
+position:fixed;left:-260px;top:0;width:240px;height:100%;
+background:#111827;color:#fff;transition:.3s;z-index:1000;padding-top:20px
 }
+.sidebar.active{left:0}
 
-.sidebar button{
-width:100%;
-padding:15px;
-border:none;
-background:none;
-text-align:left;
-font-size:16px;
-color:#1c1c1e;
-}
+.sidebar button{width:100%;padding:15px;text-align:left;border:none;color:#fff}
+.sidebar button:hover{background:#1f2937}
 
-.sidebar button:hover{
-background:#f2f2f7;
-}
+.topbar{background:#111827;color:#fff;padding:15px;display:flex;align-items:center}
 
-.sidebar.active{
-left:0;
-}
-
-/* CONTAINER */
-
-.container{
-max-width:430px;
-margin:auto;
-padding:20px;
-}
-
-/* CARDS */
-
-.card{
-background:white;
-padding:20px;
-border-radius:18px;
-box-shadow:0 2px 10px rgba(0,0,0,0.05);
-margin-bottom:20px;
-}
-
-/* INPUTS */
-
-input,select{
-width:100%;
-padding:14px;
-margin-top:10px;
-border-radius:12px;
-border:1px solid #e5e5ea;
-font-size:16px;
-background:#f9f9fb;
-}
-
-/* BOTÕES */
-
-button{
-width:100%;
-padding:14px;
-margin-top:10px;
-border-radius:14px;
-border:none;
-font-size:16px;
-font-weight:600;
-background:#007aff;
-color:white;
-cursor:pointer;
-transition:0.2s;
-}
-
-button:hover{
-opacity:0.9;
-}
-
-/* TITULOS */
-
-h2{
-text-align:center;
-margin-bottom:10px;
-}
-
-/* PAGINAS */
-
-.pagina{
-display:none;
-}
-
-/* DASHBOARD */
-
-.dashboard{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-margin-top:15px;
-}
-
-.cardDash{
-background:white;
-padding:20px;
-border-radius:16px;
-box-shadow:0 2px 10px rgba(0,0,0,0.05);
-text-align:center;
-}
-
-.titulo{
-font-size:14px;
-color:#8e8e93;
-}
-
-.numero{
-font-size:26px;
-font-weight:700;
-margin-top:5px;
-}
-
-.menuTitulo{
-font-size:20px;
-font-weight:600;
-padding:20px 15px;
-border-bottom:1px solid #eee;
-margin-bottom:10px;
-}
-
-.menuRodape{
-position:absolute;
-bottom:0;
-width:100%;
-padding:15px;
-border-top:1px solid #eee;
-}
-
-.btnVoltar{
-background:none;
-border:none;
-font-size:16px;
-padding:15px;
-text-align:left;
-color:#007aff;
-cursor:pointer;
-}
-
-.cardMov{
-background:#ffffff;
-padding:14px;
-border-radius:14px;
-margin-bottom:10px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-box-shadow:0 2px 8px rgba(0,0,0,0.05);
-}
-
-.valorEntrada{
-color:#16a34a;
-font-weight:600;
-}
-
-.valorSaida{
-color:#dc2626;
-font-weight:600;
-}  
-  
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 10px 25px rgba(0,0,0,0.08)}
+.btn{background:#2563eb;color:#fff;padding:12px;border-radius:12px;width:100%;margin-top:10px}
+.input{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;margin-top:10px}
 </style>
 </head>
 
-<body>
+<body class="bg-gray-100">
 
 <div id="menu" class="sidebar">
-
-<button onclick="toggleMenu()" class="btnVoltar">
-⬅ Voltar
-</button>
-  
-<div class="menuTitulo">
-Barreto App
-</div>
-
-<button onclick="abrirPagina('dashboard')">
-🏠 Painel
-</button>
-
-<button onclick="abrirPagina('clientes')">
-👥 Clientes
-</button>
-
-<button onclick="abrirPagina('buscar')">
-🔎 Buscar Cliente
-</button>
-
-<button onclick="abrirPagina('servicos')">
-🛠 Novo Serviço
-</button>
-
-<button onclick="abrirPagina('todosServicos')">
-📋 Todos Serviços
-</button>
-
-<button onclick="abrirPagina('relatorios')">
-💰 Financeiro
-</button>
-
-<div class="menuRodape">
-
-<button onclick="logout()">
-🚪 Sair
-</button>
-
-</div>
-
+<button onclick="toggleMenu()">⬅ Voltar</button>
+<button onclick="abrirPagina('dashboard')">🏠 Painel</button>
+<button onclick="abrirPagina('servicos')">🛠 Serviços</button>
+<button onclick="abrirPagina('config')">⚙️ Configurações</button>
 </div>
 
 <div class="topbar">
-<span class="menuBtn" onclick="toggleMenu()">☰</span>
-Barreto App
+<span onclick="toggleMenu()" style="cursor:pointer;margin-right:10px">☰</span>
+Barreto Premium 2.0
 </div>
 
-<div class="container">
+<div id="app" class="max-w-md mx-auto p-4 space-y-4 hidden">
 
-<div id="loginScreen" class="card">
+<!-- DASHBOARD -->
+<div id="paginaDashboard" class="card">
+<h2 class="text-xl font-bold mb-3">📊 Dashboard</h2>
 
-<h2>Login</h2>
-
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Senha">
-
-<button onclick="login()">Entrar</button>
-<button onclick="register()">Criar Conta</button>
-
+<div class="grid grid-cols-2 gap-3">
+<div class="card">
+<div class="text-sm text-gray-400">Serviços</div>
+<div id="dashServicos" class="text-2xl font-bold">0</div>
 </div>
 
-<div id="appScreen" style="display:none;">
-
-<!-- CLIENTES -->
-
-<div id="paginaDashboard" class="card pagina">
-
-<h2>Painel</h2>
-
-<div id="dashboard" class="dashboard">
-
-<div id="painelHoje" style="margin-top:20px"></div>
-
-<div id="painelAmanha" style="margin-top:20px"></div>
-
-<div id="painelSemana" style="margin-top:20px"></div>
-
-<div id="painelAlertas" style="margin-top:20px"></div>
-  
-<div class="cardDash" onclick="abrirPagina('clientes')">
-<div class="titulo">👥 Clientes</div>
-<div id="dashClientes" class="numero">0</div>
+<div class="card">
+<div class="text-sm text-gray-400">Recebido</div>
+<div id="dashRecebido" class="text-2xl font-bold">R$ 0</div>
 </div>
-
-<div class="cardDash" onclick="abrirComFiltro('todos')">
-<div class="titulo">🛠 Serviços</div>
-<div id="dashServicos" class="numero">0</div>
 </div>
-
-<div class="cardDash">
-<div class="titulo">💰 Recebido mês</div>
-<div id="dashRecebido" class="numero">0</div>
-</div>
-
-<div class="cardDash" onclick="abrirComFiltro('receber')">
-<div class="titulo">🕒 A receber</div>
-<div id="dashReceber" class="numero">0</div>
-</div>
-
-<div class="cardDash" onclick="abrirComFiltro('hoje')">
-<div class="titulo">📅 Serviços hoje</div>
-<div id="dashHoje" class="numero">0</div>
-</div>
-  
-</div>
-
-</div>  
-
-<div id="paginaClientes" class="card pagina">
-
-<h2>Cadastro Cliente</h2>
-
-<input id="nome" placeholder="Nome">
-<input id="telefone" placeholder="Telefone (WhatsApp)">
-  
-<input id="cep" placeholder="CEP" oninput="mascaraCEP()" onblur="buscarCEP()">
-
-<input id="rua" placeholder="Rua">
-<input id="bairro" placeholder="Bairro">
-<input id="cidade" placeholder="Cidade">
-
-<button onclick="salvarCliente()">Salvar</button>
-
-<h3>Clientes cadastrados</h3>
-<div id="listaClientes"></div>
-
-</div>
-
-<!-- CLIENTE -->
-
-<div id="paginaCliente" class="card pagina">
-
-<h2 id="nomeClienteTitulo">Cliente</h2>
-
-<button onclick="abrirServicoCliente()">Adicionar serviço</button>
-
-<h3>Histórico de serviços</h3>
-
-<div id="historicoServicos">Nenhum serviço ainda</div>
-
-</div>
-
-<!-- BUSCAR -->
-
-<div id="paginaBuscar" class="card pagina">
-
-<h2>Buscar Cliente</h2>
-
-<input id="busca" placeholder="Nome do cliente" oninput="buscarCliente()">
-
-<div id="resultado"></div>
 
 </div>
 
 <!-- SERVIÇOS -->
+<div id="paginaServicos" class="card hidden">
+<h2 class="text-xl font-bold">Novo Serviço</h2>
 
-<div id="paginaServicos" class="card pagina">
+<input id="cliente" class="input" placeholder="Cliente">
+<input id="descricao" class="input" placeholder="Descrição">
+<input id="valor" type="number" class="input" placeholder="Valor">
 
-<h2>Serviço</h2>
+<button class="btn" onclick="salvarServico()">Salvar</button>
 
-<input id="clienteServico" placeholder="Nome cliente" oninput="autoPreencherTelefone()">
-<input id="telefoneServico" placeholder="Telefone do cliente">  
-<input id="descricaoServico" placeholder="Descrição">
-<input type="number" id="valorServico" placeholder="Valor">
+<hr class="my-4">
 
-<input type="date" id="dataServico">
-  
-<select id="formaPagamento">
-<option>Pix</option>
-<option>Cartão</option>
-<option>Dinheiro</option>
-</select>
-
-<select id="statusPagamento">
-<option value="Pago">Pago</option>
-<option value="A receber">A receber</option>
-</select>
-
-<select id="statusServico">
-<option value="Orçamento">Orçamento</option>
-<option value="Aguardando resposta">Aguardando resposta</option>
-<option value="Em andamento">Em andamento</option>
-<option value="Finalizado">Finalizado</option>
-</select>
-
-<button onclick="salvarServico()">Salvar Serviço</button>
-
+<h3 class="font-bold mb-2">Lista</h3>
+<div id="listaServicos"></div>
 </div>
 
-<!-- RELATORIO -->
+<!-- CONFIG -->
+<div id="paginaConfig" class="card hidden">
+<h2 class="text-xl font-bold">⚙️ Configurações</h2>
 
-<div id="paginaRelatorios" class="card pagina">
+<input id="novoUser" class="input" placeholder="Novo usuário">
+<input id="novaSenha" type="password" class="input" placeholder="Nova senha">
 
-<h2>💰 Financeiro</h2>
-
-<div class="dashboard">
-
-<div class="cardDash">
-<div class="titulo">Saldo</div>
-<div id="saldoTotal" class="numero">R$ 0</div>
-</div>
-
-<div class="cardDash">
-<div class="titulo">Entradas</div>
-<div id="totalEntradas" class="numero">R$ 0</div>
-</div>
-
-<div class="cardDash">
-<div class="titulo">Saídas</div>
-<div id="totalSaidas" class="numero">R$ 0</div>
-</div>
-
-</div>
-
-<hr style="margin:20px 0">
-
-<select id="filtroMes" onchange="carregarFinanceiro()">
-<option value="">Todos</option>
-<option value="01">Janeiro</option>
-<option value="02">Fevereiro</option>
-<option value="03">Março</option>
-<option value="04">Abril</option>
-<option value="05">Maio</option>
-<option value="06">Junho</option>
-<option value="07">Julho</option>
-<option value="08">Agosto</option>
-<option value="09">Setembro</option>
-<option value="10">Outubro</option>
-<option value="11">Novembro</option>
-<option value="12">Dezembro</option>
-</select>
-
-<hr style="margin:20px 0">
-
-<h3>➖ Novo Gasto</h3>
-
-<input id="descGasto" placeholder="Descrição">
-<input type="number" id="valorGasto" placeholder="Valor">
-
-<button onclick="adicionarGasto()">Salvar Gasto</button>
-
-<hr style="margin:20px 0">
-
-<h3>📄 Movimentações</h3>
-
-<div id="listaFinanceiro"></div>
-
-</div>
-  
-</div>
-
-<div id="paginaTodosServicos" class="card pagina">
-
-<h2>Todos os Serviços</h2>
-
-<div id="listaTodosServicos"></div>
-
+<button class="btn" onclick="salvarConta()">💾 Salvar Conta</button>
+<button class="btn" onclick="toggleTema()">🌙 Tema</button>
+<button class="btn" onclick="resetarDados()">🧹 Limpar dados</button>
+<button class="btn" onclick="exportar()">📤 Exportar dados</button>
+<button class="btn" onclick="importar()">📥 Importar dados</button>
+<button class="btn" onclick="limparServicos()">🗑 Limpar serviços</button>
+<button class="btn" onclick="logout()">🚪 Sair</button>
 </div>
 
 </div>
 
 <script>
 
+// MENU
 function toggleMenu(){
-document.getElementById("menu").classList.toggle("active")
+document.getElementById('menu').classList.toggle('active')
 }
 
 function abrirPagina(p){
+['paginaDashboard','paginaServicos','paginaConfig'].forEach(id=>{
+document.getElementById(id).classList.add('hidden')
+})
+document.getElementById('pagina'+capitalize(p)).classList.remove('hidden')
+toggleMenu()
+}
 
-document.querySelectorAll(".pagina").forEach(x=>x.style.display="none")
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
-if(p != "todosServicos"){
-  window.filtroDashboard = null
+// LOGIN
+function iniciar(){
+const user = localStorage.getItem('user')
+const pass = localStorage.getItem('pass')
+const logado = localStorage.getItem('logado')
+
+if(!user){
+  telaCadastro()
+}else{
+  telaLogin()
+}
+}else{
+document.getElementById('app').classList.remove('hidden')
+carregarServicos()
+}
+}
+
+async function biometria(){
+  if(!window.PublicKeyCredential){
+    alert('Biometria não suportada nesse dispositivo')
+    return
+  }
+
+  try{
+    await navigator.credentials.get({
+      publicKey:{
+        challenge:new Uint8Array(32),
+        timeout:60000,
+        userVerification:"required"
+      }
+    })
+
+    localStorage.setItem('logado','true')
+    location.reload()
+
+  }catch(e){
+    alert('Falha na biometria')
+  }
+}
+
+function limparServicos(){
+if(confirm('Excluir todos serviços?')){
+localStorage.removeItem('servicos')
+carregarServicos()
+}
 }
   
-if(p=="dashboard"){
-document.getElementById("paginaDashboard").style.display="block"
-carregarDashboard()
+function importar(){
+const input = document.createElement('input')
+input.type = 'file'
+
+input.onchange = e=>{
+const file = e.target.files[0]
+const reader = new FileReader()
+
+reader.onload = ()=>{
+localStorage.setItem('servicos', reader.result)
+carregarServicos()
 }
 
-if(p=="clientes"){
-document.getElementById("paginaClientes").style.display="block"
-listarClientes()
+reader.readAsText(file)
 }
 
-if(p=="buscar"){
-document.getElementById("paginaBuscar").style.display="block"
+input.click()
 }
-
-if(p=="servicos"){
-document.getElementById("paginaServicos").style.display="block"
-}
-
-if(p=="relatorios"){
-document.getElementById("paginaRelatorios").style.display="block"
-carregarFinanceiro()
-}
-
-if(p=="todosServicos"){
-document.getElementById("paginaTodosServicos").style.display="block"
-listarTodosServicos()
-}
-
-/* FECHA MENU */
-document.getElementById("menu").classList.remove("active")
-
-}
-</script>
-
-<script type="module">
-
-window.filtroDashboard = null
   
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-
-import { 
-getAuth,
-signInWithEmailAndPassword,
-createUserWithEmailAndPassword,
-signOut,
-onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+function exportar(){
+const dados = localStorage.getItem('servicos')
+const blob = new Blob([dados], {type:"application/json"})
+const a = document.createElement('a')
+a.href = URL.createObjectURL(blob)
+a.download = "backup_servicos.json"
+a.click()
+}
   
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-doc,
-getDoc,
-updateDoc,
-deleteDoc,
-onSnapshot,
-query,
-where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBP8lpsBu0QX6ROmK7Ligb9s9XvunBppzA",
-  authDomain: "barreto-f590b.firebaseapp.com",
-  projectId: "barreto-f590b",
-  storageBucket: "barreto-f590b.firebasestorage.app",
-  messagingSenderId: "780260431308",
-  appId: "1:780260431308:web:71f990a107e4cc62db7969",
-  measurementId: "G-YFD06WXDMG"
-};
-
-
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
-const db = getFirestore(app)
-
-onAuthStateChanged(auth,(user)=>{
-
-if(user){
-
-loginScreen.style.display="none"
-appScreen.style.display="block"
-
-abrirPagina("dashboard")
-
+function telaCadastro(){
+document.body.innerHTML = `
+<div style="display:flex;justify-content:center;align-items:center;height:100vh">
+<div class="card">
+<h2>Cadastro</h2>
+<input id="user" class="input" placeholder="Usuário">
+<input id="pass" type="password" class="input" placeholder="Senha">
+<button class="btn" onclick="cadastrar()">Criar conta</button>
+</div>
+</div>`
 }
 
-})  
-
-
-window.login = async function(){
-
-try{
-
-let email = document.getElementById("email").value
-let pass = document.getElementById("password").value
-
-await signInWithEmailAndPassword(auth,email,pass)
-
-loginScreen.style.display="none"
-appScreen.style.display="block"
-abrirPagina("dashboard")
-
-}catch(e){
-
-alert("Erro ao fazer login: " + e.message)
-
-}
-
-}
-
-
-window.register = async function(){
-
-let email = document.getElementById("email").value
-let pass = document.getElementById("password").value
-
-await createUserWithEmailAndPassword(auth,email,pass)
-
-alert("Conta criada")
-
-}
-
-
-window.logout = async function(){
-
-await signOut(auth)
-
+function cadastrar(){
+localStorage.setItem('user',user.value)
+localStorage.setItem('pass',pass.value)
+alert('Conta criada!')
 location.reload()
-
 }
 
-window.autoPreencherTelefone = async function(){
-
-  let inputTel = document.getElementById("telefoneServico")
-  if(!inputTel) return // 👈 evita erro
-
-  let nome = document.getElementById("clienteServico")?.value
-  if(!nome) return
-
-  let user = auth.currentUser
-
-  let q = query(
-    collection(db,"clientes"),
-    where("uid","==",user.uid)
-  )
-
-  let snap = await getDocs(q)
-
-  snap.forEach(docSnap=>{
-    let c = docSnap.data()
-
-    if(c.nome.toLowerCase() == nome.toLowerCase()){
-      inputTel.value = c.telefone || ""
-    }
-  })
-
-}
-  
-window.salvarCliente = async function(){
-
-let btn = event.target
-btn.disabled = true
-
-try{
-
-let nome = document.getElementById("nome").value.trim()
-let telefone = document.getElementById("telefone").value.trim()
-let cep = document.getElementById("cep").value.trim()
-let rua = document.getElementById("rua").value.trim()
-let bairro = document.getElementById("bairro").value.trim()
-let cidade = document.getElementById("cidade").value.trim()
-
-if(!nome){
-alert("Digite o nome do cliente")
-btn.disabled = false
-return
-}
-
-let user = auth.currentUser
-
-let q = query(
-collection(db,"clientes"),
-where("uid","==",user.uid)
-)
-
-let snap = await getDocs(q)
-
-let duplicado = false
-
-snap.forEach(docSnap=>{
-
-let c = docSnap.data()
-
-if(
-  (
-    c.nome.toLowerCase() === nome.toLowerCase() ||
-    (telefone && c.telefone === telefone)
-  ) &&
-  docSnap.id !== window.clienteEditando // 👈 ESSENCIAL
-){
-  duplicado = true
-}
-
-})
-
-if(duplicado){
-alert("Cliente já cadastrado com esse nome ou telefone")
-btn.disabled = false
-return
-}
-
-// 🔥 EDITAR
-if(window.clienteEditando){
-
-await updateDoc(doc(db,"clientes",window.clienteEditando),{
-nome,telefone,cep,rua,bairro,cidade
-})
-
-window.clienteEditando = null
-
-alert("Cliente atualizado")
-
-}else{
-
-// 🔥 NOVO CLIENTE (CORRIGIDO)
-await addDoc(collection(db,"clientes"),{
-uid: user.uid,
-nome,telefone,cep,rua,bairro,cidade
-})
-
-alert("Cliente cadastrado")
-
-}
-
-// atualizar lista
-listarClientes()
-
-// limpar campos
-document.getElementById("nome").value=""
-document.getElementById("telefone").value=""
-document.getElementById("cep").value=""
-document.getElementById("rua").value=""
-document.getElementById("bairro").value=""
-document.getElementById("cidade").value=""
-
-}catch(e){
-console.error(e)
-alert("Erro ao salvar cliente")
-}
-
-btn.disabled = false
-
-}
-
-async function enviarParaFinanceiro(servicoId, cliente, valor){
-
-let user = auth.currentUser
-if(!user) return
-
-// 🔥 salva direto como ENTRADA
-await addDoc(collection(db,"gastos"),{
-uid:user.uid,
-descricao:"Serviço - " + cliente,
-valor:Number(valor),
-tipo:"entrada",
-servicoId:servicoId,
-data:new Date().toISOString().split("T")[0]
-})
-
-}
-  
-window.salvarServico = async function(){
-
-let cliente = document.getElementById("clienteServico").value
-let descricao = document.getElementById("descricaoServico").value
-let valor = document.getElementById("valorServico").value
-let dataServico = document.getElementById("dataServico").value  
-let pagamento = document.getElementById("formaPagamento").value
-let status = document.getElementById("statusServico").value
-let statusPagamento = document.getElementById("statusPagamento").value
-let telInput = document.getElementById("telefoneServico")
-let telefone = telInput ? telInput.value : ""
-  
-if(window.servicoEditando){
-
-await updateDoc(doc(db,"servicos",window.servicoEditando),{
-cliente,
-descricao,
-valor:Number(valor),
-dataServico,
-pagamento,
-status,
-statusPagamento
-})
-
-// 🔥 SEMPRE sincroniza com financeiro
-await enviarParaFinanceiro(window.servicoEditando, cliente, Number(valor));
-
-window.servicoEditando=null
-
-}else{
-
-let numeroOS = Date.now()
-
-let user = auth.currentUser
-
-let docRef = await addDoc(collection(db,"servicos"),{
-  numeroOS: numeroOS,
-  cliente: cliente,
-  telefone: telefone,
-  descricao: descricao,
-  valor: Number(valor),
-  dataServico: dataServico,
-  statusPagamento: statusPagamento,
-  pagamentos: statusPagamento === "Pago" ? [{
-    valor: Number(valor),
-    forma: pagamento,
-    data: new Date().toLocaleDateString()
-  }] : [],
-  uid: user.uid
-})
-
-// 🔥 AGORA SIM (fora do addDoc)
-if(statusPagamento === "Pago"){
-  await enviarParaFinanceiro(docRef.id, cliente, Number(valor));
-}
-
-listarTodosServicos()
-
-document.getElementById("clienteServico").value=""
-document.getElementById("descricaoServico").value=""
-document.getElementById("valorServico").value=""
-document.getElementById("dataServico").value=""
-  
-alert("Serviço salvo")
-abrirPagina("dashboard")
-}
-
-}
-  
-window.gerarRelatorio = async function(){
-
-let user = auth.currentUser
-
-let q = query(
-collection(db,"servicos"),
-where("uid","==",user.uid)
-)
-
-let snap = await getDocs(q)
-
-let faturado = 0
-let recebido = 0
-let receber = 0
-
-snap.forEach(docSnap=>{
-
-let s = docSnap.data()
-
-let total = s.valor || 0
-let pago = 0
-
-faturado += total
-
-if(s.pagamentos){
-  s.pagamentos.forEach(p=>{
-    pago += p.valor
-  })
-}
-
-// se não tem pagamentos mas está marcado como pago
-if(!s.pagamentos && s.statusPagamento == "Pago"){
-  pago = total
-}
-
-recebido += pago
-
-if(total > pago){
-  receber += (total - pago)
-}
-
-})
-
-document.getElementById("relatorio").innerHTML = `
-
-📊 Total faturado: R$ ${faturado.toFixed(2)}<br><br>
-
-💰 Total recebido: R$ ${recebido.toFixed(2)}<br><br>
-
-🕒 Total a receber: R$ ${receber.toFixed(2)}
-
-`
-
-}
-  
-window.excluirServico = async function(id){
-
-if(!confirm("Deseja excluir o serviço?")) return
-
-try{
-
-// 🔥 apaga serviço
-await deleteDoc(doc(db,"servicos",id))
-
-// 🔥 remove do financeiro
-let q = query(
-collection(db,"gastos"),
-where("servicoId","==",id)
-)
-
-let snap = await getDocs(q)
-
-for (const d of snap.docs){
-  await deleteDoc(doc(db,"gastos",d.id))
-}
-
-// ❌ NÃO precisa mais chamar listarTodosServicos()
-// o onSnapshot já atualiza tudo automático
-
-}catch(e){
-console.error(e)
-alert("Erro ao excluir")
-}
-
-}
-
-window.adicionarPagamento = async function(id){
-
-let valor = parseFloat(prompt("Valor do pagamento"))
-
-if(!valor || valor <= 0){
-alert("Valor inválido")
-return
-}
-
-let forma = prompt("Forma de pagamento (Pix, Cartão, Dinheiro)")
-
-let ref = doc(db,"servicos",id)
-
-let snap = await getDoc(ref)
-
-let dados = snap.data()
-
-let total = dados.valor
-let pagamentos = dados.pagamentos || []
-
-let soma = pagamentos.reduce((t,p)=> t + p.valor,0)
-
-if((soma + valor) > total){
-  alert("Pagamento ultrapassa o valor do serviço")
-  return
-}
-
-pagamentos.push({
-valor:valor,
-forma:forma,
-data:new Date().toLocaleDateString()
-})
-
-if((soma + valor).toFixed(2) == total.toFixed(2)){
-  await enviarParaFinanceiro(id, dados.cliente, dados.valor);
-}
-  
-let status = "A receber"
-
-if((soma + valor).toFixed(2) == total.toFixed(2)){
-  status = "Pago"
-}
-
-await updateDoc(ref,{
-pagamentos:pagamentos,
-statusPagamento:status
-})
-
-alert("Pagamento registrado")
-
-listarTodosServicos()
-carregarDashboard()
-
-}
-  
-window.abrirServicoCliente = function(){
-
-abrirPagina("servicos")
-
-setTimeout(()=>{
-  document.getElementById("clienteServico").value = window.clienteAtual
-  autoPreencherTelefone()
-}, 100)
-
-}
-  
-window.editarServico = function(id,cliente,descricao,valor,status,pagamento,statusPagamento,dataServico){
-  
-abrirPagina("servicos")
-
-document.getElementById("clienteServico").value = cliente
-document.getElementById("descricaoServico").value = descricao
-document.getElementById("valorServico").value = valor
-document.getElementById("statusServico").value = status
-document.getElementById("dataServico").value = dataServico
-  
-if(pagamento){
-document.getElementById("formaPagamento").value = pagamento
-}
-
-if(statusPagamento){
-document.getElementById("statusPagamento").value = statusPagamento
-}
-
-window.servicoEditando = id
-
-}
-  
-window.excluirCliente = async function(id){
-
-if(!confirm("Excluir cliente?")) return
-
-await deleteDoc(doc(db,"clientes",id))
-
-listarClientes()
-
-}
-
-window.editarCliente = function(id,nome,telefone,cep,rua,bairro,cidade){
-
-document.getElementById("nome").value = nome
-document.getElementById("telefone").value = telefone
-document.getElementById("cep").value = cep || ""
-document.getElementById("rua").value = rua || ""
-document.getElementById("bairro").value = bairro || ""
-document.getElementById("cidade").value = cidade || ""
-
-window.clienteEditando = id
-
-}
-  
-window.abrirCliente = async function(nome){
-
-window.clienteAtual = nome
-
-let user = auth.currentUser
-
-let qClientes = query(
-collection(db,"clientes"),
-where("uid","==",user.uid)
-)
-
-let snapClientes = await getDocs(qClientes)
-
-let cliente = null
-
-snapClientes.forEach(docSnap=>{
-
-let c = docSnap.data()
-
-if(c.nome == nome){
-cliente = c
-}
-
-})
-
-if(!cliente){
-alert("Cliente não encontrado")
-return
-}
-
-document.getElementById("nomeClienteTitulo").innerHTML = `
-Cliente: ${cliente.nome}<br>
-📞 ${cliente.telefone || ""}<br>
-📍 ${cliente.rua || ""}, ${cliente.bairro || ""} - ${cliente.cidade || ""}
-`
-
-document.querySelectorAll(".pagina").forEach(x => x.style.display="none")
-
-document.getElementById("paginaCliente").style.display="block"
-
-listarHistorico(nome)
-
-/* FECHAR MENU */
-document.getElementById("menu").classList.remove("active")
-
-}
-  
-window.listarHistorico = async function(cliente){
-
-let user = auth.currentUser
-
-let q = query(
-collection(db,"servicos"),
-where("uid","==",user.uid)
-)
-
-let snap = await getDocs(q)
-let html=""
-
-snap.forEach(docSnap=>{
-
-let s = docSnap.data()
-let id = docSnap.id
-
-if(s.cliente == cliente){
-
-html += `
-
-<div style="border-bottom:1px solid #eee;padding:10px">
-
-<b>OS ${s.numeroOS || ""}</b><br>
-<b>${s.descricao}</b>
-
-💰 R$ ${s.valor}<br>
-
-📊 ${s.status}<br>
-
-💳 ${s.statusPagamento || ""}
-
-<br>
-
-<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}')">
-Editar
-</button>
-
-<button onclick='gerarOS(${JSON.stringify(s)})'>
-📄 OS
-</button>
-
-<button onclick="excluirServico('${id}','${cliente}')">
-Excluir
-</button>
-
+function telaLogin(){
+document.body.innerHTML = `
+<div style="display:flex;justify-content:center;align-items:center;height:100vh">
+<div class="card">
+<h2>Login</h2>
+<input id="user" class="input" placeholder="Usuário">
+<input id="pass" type="password" class="input" placeholder="Senha">
+<button class="btn" onclick="login()">Entrar</button>
+<button class="btn" onclick="biometria()">🔐 Entrar com digital</button>
 </div>
-
-`
-
+</div>`
 }
 
-})
-
-document.getElementById("historicoServicos").innerHTML = html
-
-}
-
-window.carregarDashboard = function(){
-
-let user = auth.currentUser
-
-let q = query(
-collection(db,"servicos"),
-where("uid","==",user.uid)
-)
-
-if(window.unsubscribeDashboard){
-  window.unsubscribeDashboard()
-}
-
-window.unsubscribeDashboard = onSnapshot(q, async (snapServicos)=>{
-
-let qClientes = query(
-collection(db,"clientes"),
-where("uid","==",user.uid)
-)
-
-let snapClientes = await getDocs(qClientes)
-  
-let clientes = snapClientes.size
-let servicos = snapServicos.size
-
-let recebido = 0
-let receber = 0
-let servicosHoje = 0
-
-let mesAtual = new Date().getMonth()
-let anoAtual = new Date().getFullYear()
-
-let hoje = new Date().toISOString().split("T")[0]
-let hojeData = new Date()
-
-let amanhaData = new Date()
-amanhaData.setDate(amanhaData.getDate()+1)
-let amanha = amanhaData.toISOString().split("T")[0]
-
-let listaHoje = []
-let listaAmanha = []
-let listaSemana = []
-let pagamentosPendentes = []
-
-snapServicos.forEach(docSnap=>{
-
-let s = docSnap.data()
-
-/* DATA DO SERVIÇO */
-
-if(!s.dataServico) return
-
-let dataServico = new Date(s.dataServico)
-let diffDias = Math.floor((dataServico - hojeData) / (1000*60*60*24))
-
-/* SERVIÇOS DE HOJE */
-
-if(s.dataServico == hoje){
-servicosHoje++
-listaHoje.push(s)
-}
-
-/* SERVIÇOS DE AMANHA */
-
-if(s.dataServico == amanha){
-listaAmanha.push(s)
-}  
-  
-/* SERVIÇOS DA SEMANA */
-
-if(diffDias >= 0 && diffDias <= 7){
-listaSemana.push(s)
-}
-
-/* PAGAMENTOS */
-
-let total = s.valor || 0
-let pago = 0
-
-if(s.pagamentos){
-
-s.pagamentos.forEach(p=>{
-
-pago += p.valor
-
-if(p.data){
-
-let partes = p.data.split("/")
-let dataPagamento = new Date(partes[2], partes[1]-1, partes[0])
-
-if(dataPagamento.getMonth()==mesAtual && dataPagamento.getFullYear()==anoAtual){
-recebido += p.valor
-}
-
-}
-
-})
-
-}
-
-let saldo = total - pago
-
-if(s.statusPagamento !== "Pago" && saldo > 0){
-  receber += saldo
-
-pagamentosPendentes.push({
-  cliente: s.cliente,
-  telefone: s.telefone || "",
-  saldo: saldo
-})
-}
-
-})
-
-/* NÚMEROS DO DASHBOARD */
-
-document.getElementById("dashClientes").innerText = clientes
-document.getElementById("dashServicos").innerText = servicos
-document.getElementById("dashRecebido").innerText = "R$ "+recebido.toFixed(2)
-document.getElementById("dashReceber").innerText = "R$ "+receber.toFixed(2)
-  if(receber > 0){
-  document.getElementById("dashReceber").style.color = "red"
+function login(){
+if(user.value === localStorage.getItem('user') &&
+pass.value === localStorage.getItem('pass')){
+localStorage.setItem('logado','true')
+location.reload()
 }else{
-  document.getElementById("dashReceber").style.color = "black"
+alert('Erro no login')
 }
-document.getElementById("dashHoje").innerText = servicosHoje
+}
 
-/* SERVIÇOS DE HOJE */
+function logout(){
+localStorage.removeItem('logado')
+location.reload()
+}
 
-let hojeHTML = "<h3>📅 Serviços de hoje</h3>"
+// SERVIÇOS
+function salvarServico(){
+let lista = JSON.parse(localStorage.getItem('servicos')||'[]')
 
-if(listaHoje.length == 0){
-
-hojeHTML += "<div>Nenhum serviço hoje</div>"
-
-}else{
-
-listaHoje.forEach(s=>{
-
-hojeHTML += `
-<div>
-• ${s.descricao} - ${s.cliente}
-</div>
-`
-
+lista.push({
+cliente:cliente.value,
+descricao:descricao.value,
+valor:Number(valor.value)
 })
 
+localStorage.setItem('servicos',JSON.stringify(lista))
+
+cliente.value = ''
+descricao.value = ''
+valor.value = ''
+
+carregarServicos()
 }
 
-document.getElementById("painelHoje").innerHTML = hojeHTML
+function carregarServicos(){
+let lista = JSON.parse(localStorage.getItem('servicos')||'[]')
+const div = document.getElementById('listaServicos')
+div.innerHTML = ''
 
-/* SERVIÇOS DE AMANHÃ */
+let total = 0
 
-let amanhaHTML = "<h3>📆 Serviços de amanhã</h3>"
+lista.forEach((s,i)=>{
+total += s.valor
 
-if(listaAmanha.length == 0){
-
-amanhaHTML += "<div>Nenhum serviço amanhã</div>"
-
-}else{
-
-listaAmanha.forEach(s=>{
-
-amanhaHTML += `
-<div>
-• ${s.descricao} - ${s.cliente}
-</div>
-`
-
-})
-
-}
-
-document.getElementById("painelAmanha").innerHTML = amanhaHTML  
-
-/* PRÓXIMOS SERVIÇOS */
-
-let semanaHTML = "<h3>📆 Próximos serviços</h3>"
-
-if(listaSemana.length == 0){
-
-semanaHTML += "<div>Nenhum serviço na semana</div>"
-
-}else{
-
-listaSemana.forEach(s=>{
-
-semanaHTML += `
-<div>
-• ${s.dataServico} - ${s.descricao} - ${s.cliente}
-</div>
-`
-
-})
-
-}
-
-document.getElementById("painelSemana").innerHTML = semanaHTML
-
-/* ALERTAS DE PAGAMENTO */
-
-let alertaHTML = "<h3>⚠ Pagamentos pendentes</h3>"
-
-if(pagamentosPendentes.length == 0){
-
-alertaHTML += "<div>Nenhum pagamento pendente</div>"
-
-}else{
-
-pagamentosPendentes.forEach(s=>{
-
-alertaHTML += `
-<div style="cursor:pointer;color:#007aff"
-onclick="abrirWhats('${s.cliente}','${s.telefone}',${s.saldo})">
-
-• ${s.cliente} - R$ ${s.saldo.toFixed(2)}
-
-</div>
-`
-
-})
-
-}
-
-  document.getElementById("painelAlertas").innerHTML = alertaHTML
-
-}) // ← FECHA onSnapshot
-
-}
-
-window.abrirComFiltro = function(tipo){
-
-  window.filtroDashboard = tipo
-
-  abrirPagina("todosServicos")
-
-}
-  
-window.listarClientes = async function(){
-
-let user = auth.currentUser
-
-let q = query(
-collection(db,"clientes"),
-where("uid","==",user.uid)
-)
-
-let snap = await getDocs(q)
-  
-let html=""
-
-snap.forEach(docSnap=>{
-
-let c = docSnap.data()
-let id = docSnap.id
-
-html += `
-
-<div style="border-bottom:1px solid #eee;padding:10px">
-
-<b onclick="abrirCliente('${c.nome}')">${c.nome}</b><br>
-
-${c.telefone}<br>
-
-<button onclick="editarCliente(
-'${id}',
-'${c.nome}',
-'${c.telefone}',
-'${c.cep}',
-'${c.rua}',
-'${c.bairro}',
-'${c.cidade}'
-)">
-Editar
-</button>
-
-<button onclick="excluirCliente('${id}')">
-Excluir
-</button>
-
-</div>
-
-`
-
-})
-
-document.getElementById("listaClientes").innerHTML = html
-
-}
-
-window.abrirWhats = function(nome, telefone, saldo){
-
-  if(!telefone){
-    alert("Cliente sem telefone cadastrado")
-    return
-  }
-
-  let numero = telefone.replace(/\D/g, "")
-
-  if(!numero){
-    alert("Telefone inválido")
-    return
-  }
-
-  if(!numero.startsWith("55")){
-    numero = "55" + numero
-  }
-
-  let mensagem = `Olá ${nome}, tudo bem? 😊
-
-Verifiquei aqui e ficou pendente o valor de R$ ${saldo.toFixed(2)}.
-
-Se já realizou o pagamento, pode desconsiderar 👍
-Qualquer dúvida estou à disposição.`
-
-  let url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
-
-  window.open(url, "_blank")
-}
-
-window.carregarFinanceiro = function(){
-
-let user = auth.currentUser
-let mes = document.getElementById("filtroMes").value
-
-let qGastos = query(
-collection(db,"gastos"),
-where("uid","==",user.uid)
-)
-
-onSnapshot(qGastos, (snapshot) => {
-
-let totalEntradas = 0
-let totalSaidas = 0
-let html = ""
-
-snapshot.forEach(docSnap => {
-let g = docSnap.data()
-
-let mesGasto = g.data?.split("-")[1]
-
-if(!mes || mes === mesGasto){
-
-if(g.tipo === "entrada"){
-totalEntradas += Number(g.valor)
-}else{
-totalSaidas += Number(g.valor)
-}
-
-let icone = g.tipo === "entrada" ? "💰" : "💸"
-let classe = g.tipo === "entrada" ? "valorEntrada" : "valorSaida"
-
-html += `
-<div class="cardMov">
-<span>${icone} ${g.descricao}</span>
-<span class="${classe}">
-${Number(g.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
-</span>
-</div>
-`
-
-}
-
-})
-
-let saldo = totalEntradas - totalSaidas
-
-document.getElementById("saldoTotal").innerText =
-saldo.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
-
-document.getElementById("totalEntradas").innerText =
-totalEntradas.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
-
-document.getElementById("totalSaidas").innerText =
-totalSaidas.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
-
-document.getElementById("listaFinanceiro").innerHTML = html
-
-})
-
-}
-window.salvarMeta = async function(){
-
-let user = auth.currentUser
-let valor = document.getElementById("inputMeta").value
-
-await addDoc(collection(db,"metas"),{
-uid:user.uid,
-valor:Number(valor)
-})
-
-alert("Meta salva")
-
-carregarFinanceiro()
-
-}
-  
-window.adicionarGasto = async function(){
-
-let user = auth.currentUser
-
-let descricao = document.getElementById("descGasto").value
-let valor = document.getElementById("valorGasto").value
-let categoria = ""
-  
-await addDoc(collection(db,"gastos"),{
-uid:user.uid,
-descricao,
-valor:Number(valor),
-categoria,
-tipo:"saida",
-data:new Date().toISOString().split("T")[0]
-})
-
-alert("Gasto salvo")
-
-carregarFinanceiro()
-
-}
-  
-window.listarTodosServicos = function(){
-
-let user = auth.currentUser
-
-let q = query(
-collection(db,"servicos"),
-where("uid","==",user.uid)
-)
-
-// 🔥 remove listener antigo se existir
-if(window.unsubscribeServicos){
-  window.unsubscribeServicos()
-}
-
-// 🔥 listener em tempo real
-window.unsubscribeServicos = onSnapshot(q, (snap)=>{
-
-let html=""
-
-let hoje = new Date().toISOString().split("T")[0]
-
-snap.forEach(docSnap=>{
-
-let s = docSnap.data()
-let id = docSnap.id
-
-// 🔥 FILTRO DO DASHBOARD
-if(window.filtroDashboard){
-
-  if(window.filtroDashboard == "receber" && s.statusPagamento == "Pago"){
-    return
-  }
-
-  if(window.filtroDashboard == "hoje" && s.dataServico != hoje){
-    return
-  }
-
-}
-
-// pagamentos
-let pagamentosHTML = ""
-
-if(s.pagamentos){
-s.pagamentos.forEach(p=>{
-pagamentosHTML += `
-<div style="font-size:13px;margin-left:10px">
-💵 ${p.forma} - R$ ${p.valor} (${p.data})
-</div>
-`
-})
-}
-
-html += `
-
-<div style="border-bottom:1px solid #eee;padding:10px">
-
-<b>OS ${s.numeroOS || ""}</b><br>
+div.innerHTML += `
+<div class="card mt-2">
 <b>${s.cliente}</b><br>
-
 ${s.descricao}<br>
-
-💰 Total: R$ ${s.valor}<br>
-
-📊 ${s.status}<br>
-
-💳 ${s.statusPagamento}
-
-${pagamentosHTML}
-
-${s.statusPagamento == "A receber" ? 
-`<br><button onclick="adicionarPagamento('${id}')">Adicionar Pagamento</button>` 
-: "" }
-
-<br><br>
-
-<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}','${s.pagamento}','${s.statusPagamento}','${s.dataServico}')">
-Editar
-</button>
-
-<button onclick="excluirServico('${id}')">
-Excluir
-</button>
-
-</div>
-`
-
+R$ ${s.valor}
+<button class="btn" onclick="excluir(${i})">Excluir</button>
+</div>`
 })
 
-document.getElementById("listaTodosServicos").innerHTML = html
-
-})
-
+document.getElementById('dashServicos').innerText = lista.length
+document.getElementById('dashRecebido').innerText = 
+'R$ '+total.toFixed(2)
 }
 
-window.gerarOS = async function(servico){
-
-let user = auth.currentUser
-
-let qClientes = query(
-collection(db,"clientes"),
-where("uid","==",user.uid)
-)
-
-let snapClientes = await getDocs(qClientes)
-  
-let cliente = {}
-
-snapClientes.forEach(docSnap=>{
-
-let c = docSnap.data()
-
-if(c.nome == servico.cliente){
-cliente = c
+function excluir(i){
+let lista = JSON.parse(localStorage.getItem('servicos'))
+lista.splice(i,1)
+localStorage.setItem('servicos',JSON.stringify(lista))
+carregarServicos()
 }
 
-})
-
-let pagamentosHTML = ""
-
-if(servico.pagamentos){
-
-servico.pagamentos.forEach(p=>{
-
-pagamentosHTML += `
-<tr>
-<td>${p.data}</td>
-<td>${p.forma}</td>
-<td>R$ ${p.valor}</td>
-</tr>
-`
-
-})
-
-}else{
-
-pagamentosHTML = `
-<tr>
-<td colspan="3">Nenhum pagamento registrado</td>
-</tr>
-`
-
+// CONFIG
+function salvarConta(){
+localStorage.setItem('user',novoUser.value)
+localStorage.setItem('pass',novaSenha.value)
+alert('Atualizado!')
 }
 
-let janela = window.open("")
-
-let html = `
-<html>
-
-<head>
-
-<title>Ordem de Serviço</title>
-
-<style>
-
-body{
-font-family:Arial;
-padding:40px;
-color:#000;
+function resetarDados(){
+if(confirm('Apagar tudo?')){
+localStorage.clear()
+location.reload()
+}
 }
 
-h1{
-text-align:center;
-margin-bottom:30px;
+// TEMA
+function toggleTema(){
+document.body.classList.toggle('dark')
+localStorage.setItem('tema',document.body.classList.contains('dark')?'dark':'light')
 }
 
-.info{
-margin-bottom:20px;
+if(localStorage.getItem('tema')==='dark'){
+document.body.classList.add('dark')
 }
 
-.box{
-border:1px solid #000;
-padding:15px;
-margin-top:10px;
-}
+iniciar()
 
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-}
-
-table, th, td{
-border:1px solid #000;
-}
-
-th,td{
-padding:8px;
-text-align:left;
-}
-
-.assinatura{
-margin-top:60px;
-text-align:center;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h1>ORDEM DE SERVIÇO</h1>
-
-<div class="info">
-<b>OS:</b> ${servico.numeroOS || ""}<br>
-<b>Data do serviço:</b> ${servico.dataServico}
-</div>
-
-<div class="box">
-<b>Cliente:</b> ${servico.cliente}<br>
-📞 ${cliente.telefone || ""}<br>
-📍 ${cliente.rua || ""}, ${cliente.bairro || ""} - ${cliente.cidade || ""}
-</div>
-
-<div class="box">
-<b>Serviço executado</b><br><br>
-${servico.descricao}
-</div>
-
-<div class="box">
-<b>Valor total:</b> R$ ${servico.valor}
-</div>
-
-<div class="box">
-
-<b>Pagamentos</b>
-
-<table>
-
-<tr>
-<th>Data</th>
-<th>Forma</th>
-<th>Valor</th>
-</tr>
-
-${pagamentosHTML}
-
-</table>
-
-</div>
-
-<div class="assinatura">
-
-<br><br><br>
-
-___________________________________<br>
-Assinatura do cliente
-
-</div>
-
-</body>
-
-</html>
-`
-
-janela.document.write(html)
-janela.document.close()
-
-janela.print()
-
-} 
-  
-window.buscarCEP = async function(){
-
-try{
-
-let cep = document.getElementById("cep").value
-
-let res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
-let dados = await res.json()
-
-if(dados.erro){
-alert("CEP não encontrado")
-return
-}
-
-document.getElementById("rua").value = dados.logradouro || ""
-document.getElementById("bairro").value = dados.bairro || ""
-document.getElementById("cidade").value = dados.localidade || ""
-
-}catch(e){
-
-alert("Erro ao buscar CEP")
-
-}
-
-}
-
-window.mascaraCEP = function(){
-
-let cep = document.getElementById("cep")
-
-cep.value = cep.value
-.replace(/\D/g,"")
-.replace(/(\d{5})(\d)/,"$1-$2")
-.slice(0,9)
-
-}
-
-window.buscarCliente = async function(){
-
-let user = auth.currentUser
-  
-let texto = document.getElementById("busca").value.toLowerCase()
-
-let qClientes = query(
-collection(db,"clientes"),
-where("uid","==",user.uid)
-)
-
-let snapClientes = await getDocs(qClientes)
-  
-let html=""
-
-snapClientes.forEach(docSnap=>{
-  
-let c = docSnap.data()
-
-if(c.nome.toLowerCase().includes(texto)){
-
-html += `
-
-<div style="border-bottom:1px solid #eee;padding:10px">
-
-<b onclick="abrirCliente('${c.nome}')">${c.nome}</b><br>
-
-${c.telefone || ""}
-
-</div>
-
-`
-
-}
-
-})
-
-document.getElementById("resultado").innerHTML = html
-
-}
-  
 </script>
 
-<script>
-
-if("serviceWorker" in navigator){
-
-navigator.serviceWorker.register("service-worker.js")
-
-.then(()=>console.log("App pronto"))
-
-}
-
-</script>
-  
 </body>
 </html>
-```
