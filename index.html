@@ -281,7 +281,10 @@ Barreto App
 
 <button onclick="login()">Entrar</button>
 <button onclick="register()">Criar Conta</button>
-
+<button onclick="loginComBiometria()">
+🔐 Entrar com biometria
+</button>
+  
 </div>
 
 <div id="appScreen" style="display:none;">
@@ -735,6 +738,11 @@ tema: document.getElementById("tema").value,
 idioma: document.getElementById("idioma").value,
 moeda: document.getElementById("moeda").value,
 biometria: document.getElementById("biometria").checked
+}
+
+// 🔥 agora sim
+if(config.biometria){
+registrarBiometria()
 }
 
 localStorage.setItem("configApp", JSON.stringify(config))
@@ -1628,10 +1636,27 @@ let classe = g.tipo === "entrada" ? "valorEntrada" : "valorSaida"
 
 html += `
 <div class="cardMov">
-<span>${icone} ${g.descricao}</span>
+
+<span>
+${icone} ${g.descricao}
+</span>
+
 <span class="${classe}">
 ${Number(g.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
 </span>
+
+</div>
+
+<div style="display:flex;gap:10px;margin-bottom:10px">
+
+<button onclick="editarGasto('${docSnap.id}','${g.descricao}',${g.valor})">
+Editar
+</button>
+
+<button onclick="excluirGasto('${docSnap.id}')">
+Excluir
+</button>
+
 </div>
 `
 
@@ -1655,6 +1680,113 @@ document.getElementById("listaFinanceiro").innerHTML = html
 })
 
 }
+
+window.loginComBiometria = async function(){
+
+let config = JSON.parse(localStorage.getItem("configApp")) || {}
+
+if(!config.biometria){
+alert("Biometria não ativada")
+return
+}
+
+// 🔥 exige usuário já autenticado
+let user = auth.currentUser
+
+if(!user){
+alert("Faça login uma vez antes de usar biometria")
+return
+}
+
+try{
+
+await navigator.credentials.get({
+publicKey:{
+challenge:new Uint8Array(32),
+timeout:60000,
+userVerification:"required"
+}
+})
+
+// 🔥 libera app com segurança
+loginScreen.style.display="none"
+appScreen.style.display="block"
+abrirPagina("dashboard")
+
+}catch(e){
+alert("Falha na biometria")
+}
+
+}
+  
+window.registrarBiometria = async function(){
+
+try{
+
+let cred = await navigator.credentials.create({
+publicKey:{
+challenge: new Uint8Array(32),
+rp:{ name:"Barreto App" },
+user:{
+id:new Uint8Array(16),
+name:"user",
+displayName:"Usuário"
+},
+pubKeyCredParams:[
+{ type:"public-key", alg:-7 }
+],
+authenticatorSelection:{
+authenticatorAttachment:"platform",
+userVerification:"required"
+},
+timeout:60000,
+attestation:"none"
+}
+})
+
+// salva no localStorage (simples)
+localStorage.setItem("biometria", "true")
+
+alert("Biometria ativada com sucesso")
+
+}catch(e){
+console.error(e)
+alert("Erro ao ativar biometria")
+}
+
+}
+  
+window.excluirGasto = async function(id){
+
+if(!confirm("Deseja excluir este gasto?")) return
+
+await deleteDoc(doc(db,"gastos",id))
+
+alert("Gasto excluído")
+
+}
+  
+window.editarGasto = async function(id, desc, valor){
+
+let novaDesc = prompt("Descrição:", desc)
+if(!novaDesc) return
+
+let novoValor = parseFloat(prompt("Valor:", valor))
+
+if(!novoValor || novoValor <= 0){
+alert("Valor inválido")
+return
+}
+
+await updateDoc(doc(db,"gastos",id),{
+descricao: novaDesc,
+valor: Number(novoValor)
+})
+
+alert("Gasto atualizado")
+
+}
+  
 window.salvarMeta = async function(){
 
 let user = auth.currentUser
