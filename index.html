@@ -116,19 +116,22 @@ function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
 // LOGIN
 function iniciar(){
-const user = localStorage.getItem('user')
-const pass = localStorage.getItem('pass')
-const logado = localStorage.getItem('logado')
+  const user = localStorage.getItem('user')
+  const logado = localStorage.getItem('logado')
 
-if(!user){
-  telaCadastro()
-}else{
-  telaLogin()
-}
-}else{
-document.getElementById('app').classList.remove('hidden')
-carregarServicos()
-}
+  // Se já está logado → entra direto
+  if(logado === 'true'){
+    document.getElementById('app').classList.remove('hidden')
+    carregarServicos()
+    return
+  }
+
+  // Se não tem usuário → cadastro
+  if(!user){
+    telaCadastro()
+  }else{
+    telaLogin()
+  }
 }
 
 async function biometria(){
