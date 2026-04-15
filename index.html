@@ -251,6 +251,10 @@ Barreto App
 💰 Financeiro
 </button>
 
+<button onclick="abrirPagina('config')">
+⚙️ Configurações
+</button>
+
 <div class="menuRodape">
 
 <button onclick="logout()">
@@ -281,6 +285,46 @@ Barreto App
 </div>
 
 <div id="appScreen" style="display:none;">
+
+<div id="paginaConfig" class="card pagina">
+
+<h2>⚙️ Configurações</h2>
+
+<!-- CONTA -->
+<h3>Conta</h3>
+<input type="password" id="novaSenha" placeholder="Nova senha">
+<button onclick="trocarSenha()">Alterar senha</button>
+
+<!-- TEMA -->
+<h3>Aparência</h3>
+<select id="tema" onchange="salvarConfig()">
+<option value="claro">Claro</option>
+<option value="escuro">Escuro</option>
+</select>
+
+<!-- IDIOMA -->
+<h3>Idioma</h3>
+<select id="idioma" onchange="salvarConfig()">
+<option value="pt">Português</option>
+<option value="en">English</option>
+</select>
+
+<!-- MOEDA -->
+<h3>Moeda</h3>
+<select id="moeda" onchange="salvarConfig()">
+<option value="BRL">Real (R$)</option>
+<option value="USD">Dólar ($)</option>
+<option value="EUR">Euro (€)</option>
+</select>
+
+<!-- BIOMETRIA -->
+<h3>Segurança</h3>
+<label>
+<input type="checkbox" id="biometria" onchange="salvarConfig()">
+ Usar biometria
+</label>
+
+</div>  
 
 <!-- CLIENTES -->
 
@@ -522,6 +566,11 @@ document.getElementById("paginaTodosServicos").style.display="block"
 listarTodosServicos()
 }
 
+if(p=="config"){
+document.getElementById("paginaConfig").style.display="block"
+carregarConfig()
+}
+
 /* FECHA MENU */
 document.getElementById("menu").classList.remove("active")
 
@@ -606,7 +655,94 @@ alert("Erro ao fazer login: " + e.message)
 
 }
 
+import { updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+  
+window.trocarSenha = async function(){
 
+let user = auth.currentUser
+let novaSenha = document.getElementById("novaSenha").value
+
+if(!novaSenha){
+alert("Digite a nova senha")
+return
+}
+
+try{
+await updatePassword(user, novaSenha)
+alert("Senha atualizada com sucesso")
+}catch(e){
+alert("Erro: " + e.message)
+}
+
+}
+
+window.loginBiometrico = async function(){
+
+if(!window.PublicKeyCredential){
+alert("Biometria não suportada")
+return
+}
+
+try{
+
+await navigator.credentials.get({
+publicKey:{
+challenge: new Uint8Array(32),
+timeout:60000,
+userVerification:"required"
+}
+})
+
+alert("Autenticado com biometria")
+
+}catch(e){
+alert("Falha na biometria")
+}
+
+}
+  
+window.aplicarTema = function(){
+
+let config = JSON.parse(localStorage.getItem("configApp")) || {}
+
+if(config.tema === "escuro"){
+document.body.style.background = "#000"
+document.body.style.color = "#fff"
+}else{
+document.body.style.background = "#f2f2f7"
+document.body.style.color = "#1c1c1e"
+}
+
+}
+  
+window.carregarConfig = function(){
+
+let config = JSON.parse(localStorage.getItem("configApp")) || {}
+
+document.getElementById("tema").value = config.tema || "claro"
+document.getElementById("idioma").value = config.idioma || "pt"
+document.getElementById("moeda").value = config.moeda || "BRL"
+document.getElementById("biometria").checked = config.biometria || false
+
+aplicarTema()
+
+}
+  
+window.salvarConfig = function(){
+
+let config = {
+tema: document.getElementById("tema").value,
+idioma: document.getElementById("idioma").value,
+moeda: document.getElementById("moeda").value,
+biometria: document.getElementById("biometria").checked
+}
+
+localStorage.setItem("configApp", JSON.stringify(config))
+
+aplicarTema()
+
+}
+  
 window.register = async function(){
 
 let email = document.getElementById("email").value
