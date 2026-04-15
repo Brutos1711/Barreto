@@ -893,12 +893,14 @@ document.getElementById("relatorio").innerHTML = `
   
 window.excluirServico = async function(id){
 
-if(confirm("Deseja excluir o serviço?")){
+if(!confirm("Deseja excluir o serviço?")) return
 
-// apaga serviço
+try{
+
+// 🔥 apaga serviço
 await deleteDoc(doc(db,"servicos",id))
 
-// 🔥 apaga do financeiro também
+// 🔥 remove do financeiro
 let q = query(
 collection(db,"gastos"),
 where("servicoId","==",id)
@@ -906,12 +908,16 @@ where("servicoId","==",id)
 
 let snap = await getDocs(q)
 
-snap.forEach(async d=>{
-await deleteDoc(doc(db,"gastos",d.id))
-})
+for (const d of snap.docs){
+  await deleteDoc(doc(db,"gastos",d.id))
+}
 
-listarTodosServicos()
+// ❌ NÃO precisa mais chamar listarTodosServicos()
+// o onSnapshot já atualiza tudo automático
 
+}catch(e){
+console.error(e)
+alert("Erro ao excluir")
 }
 
 }
@@ -1552,7 +1558,7 @@ carregarFinanceiro()
 
 }
   
-window.listarTodosServicos = async function(){
+window.listarTodosServicos = function(){
 
 let user = auth.currentUser
 
@@ -1561,16 +1567,22 @@ collection(db,"servicos"),
 where("uid","==",user.uid)
 )
 
-let snap = await getDocs(q)  
+// 🔥 remove listener antigo se existir
+if(window.unsubscribeServicos){
+  window.unsubscribeServicos()
+}
+
+// 🔥 listener em tempo real
+window.unsubscribeServicos = onSnapshot(q, (snap)=>{
 
 let html=""
+
+let hoje = new Date().toISOString().split("T")[0]
 
 snap.forEach(docSnap=>{
 
 let s = docSnap.data()
 let id = docSnap.id
-
-let hoje = new Date().toISOString().split("T")[0]
 
 // 🔥 FILTRO DO DASHBOARD
 if(window.filtroDashboard){
@@ -1585,21 +1597,17 @@ if(window.filtroDashboard){
 
 }
 
-// montar histórico de pagamentos
+// pagamentos
 let pagamentosHTML = ""
 
 if(s.pagamentos){
-
 s.pagamentos.forEach(p=>{
-
 pagamentosHTML += `
 <div style="font-size:13px;margin-left:10px">
 💵 ${p.forma} - R$ ${p.valor} (${p.data})
 </div>
 `
-
 })
-
 }
 
 html += `
@@ -1625,7 +1633,7 @@ ${s.statusPagamento == "A receber" ?
 
 <br><br>
 
-<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}','${s.pagamento}','${s.statusPagamento}','${s.dataServico}')
+<button onclick="editarServico('${id}','${s.cliente}','${s.descricao}','${s.valor}','${s.status}','${s.pagamento}','${s.statusPagamento}','${s.dataServico}')">
 Editar
 </button>
 
@@ -1634,12 +1642,13 @@ Excluir
 </button>
 
 </div>
-
 `
 
 })
 
 document.getElementById("listaTodosServicos").innerHTML = html
+
+})
 
 }
 
