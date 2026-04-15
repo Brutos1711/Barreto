@@ -895,7 +895,20 @@ window.excluirServico = async function(id){
 
 if(confirm("Deseja excluir o serviço?")){
 
+// apaga serviço
 await deleteDoc(doc(db,"servicos",id))
+
+// 🔥 apaga do financeiro também
+let q = query(
+collection(db,"gastos"),
+where("servicoId","==",id)
+)
+
+let snap = await getDocs(q)
+
+snap.forEach(async d=>{
+await deleteDoc(doc(db,"gastos",d.id))
+})
 
 listarTodosServicos()
 
@@ -1439,25 +1452,23 @@ Qualquer dúvida estou à disposição.`
   window.open(url, "_blank")
 }
 
-window.carregarFinanceiro = async function(){
+window.carregarFinanceiro = function(){
 
 let user = auth.currentUser
 let mes = document.getElementById("filtroMes").value
 
-let totalEntradas = 0
-let totalSaidas = 0
-let html = ""
-
-// 🔹 SERVIÇOS = ENTRADAS
-// 🔹 GASTOS = SAÍDAS
 let qGastos = query(
 collection(db,"gastos"),
 where("uid","==",user.uid)
 )
 
-let snapGastos = await getDocs(qGastos)
+onSnapshot(qGastos, (snapshot) => {
 
-snapGastos.forEach(docSnap=>{
+let totalEntradas = 0
+let totalSaidas = 0
+let html = ""
+
+snapshot.forEach(docSnap => {
 let g = docSnap.data()
 
 let mesGasto = g.data?.split("-")[1]
@@ -1486,7 +1497,6 @@ ${Number(g.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
 
 })
 
-// 🔹 SALDO
 let saldo = totalEntradas - totalSaidas
 
 document.getElementById("saldoTotal").innerText =
@@ -1500,8 +1510,9 @@ totalSaidas.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
 
 document.getElementById("listaFinanceiro").innerHTML = html
 
-}
+})
 
+}
 window.salvarMeta = async function(){
 
 let user = auth.currentUser
