@@ -521,6 +521,20 @@ Barreto App
 
 <h2>Todos os Serviços</h2>
 
+<select id="filtroStatus">
+<option value="">Todos status</option>
+<option value="Orçamento">Orçamento</option>
+<option value="Aguardando resposta">Aguardando resposta</option>
+<option value="Em andamento">Em andamento</option>
+<option value="Finalizado">Finalizado</option>
+</select>
+
+<input type="date" id="filtroData">
+
+<input id="filtroCliente" placeholder="Filtrar por cliente">
+
+<button onclick="listarTodosServicos()">Aplicar Filtros</button>
+  
 <div id="listaTodosServicos"></div>
 
 </div>
@@ -675,31 +689,6 @@ await updatePassword(user, novaSenha)
 alert("Senha atualizada com sucesso")
 }catch(e){
 alert("Erro: " + e.message)
-}
-
-}
-
-window.loginBiometrico = async function(){
-
-if(!window.PublicKeyCredential){
-alert("Biometria não suportada")
-return
-}
-
-try{
-
-await navigator.credentials.get({
-publicKey:{
-challenge: new Uint8Array(32),
-timeout:60000,
-userVerification:"required"
-}
-})
-
-alert("Autenticado com biometria")
-
-}catch(e){
-alert("Falha na biometria")
 }
 
 }
@@ -899,14 +888,27 @@ async function enviarParaFinanceiro(servicoId, cliente, valor){
 let user = auth.currentUser
 if(!user) return
 
-// 🔥 salva direto como ENTRADA
+// 🔍 verifica se já existe lançamento desse serviço
+let q = query(
+  collection(db,"gastos"),
+  where("servicoId","==",servicoId)
+)
+
+let snap = await getDocs(q)
+
+if(!snap.empty){
+  console.log("Já existe lançamento financeiro")
+  return
+}
+
+// ✅ cria somente se não existir
 await addDoc(collection(db,"gastos"),{
-uid:user.uid,
-descricao:"Serviço - " + cliente,
-valor:Number(valor),
-tipo:"entrada",
-servicoId:servicoId,
-data:new Date().toISOString().split("T")[0]
+  uid:user.uid,
+  descricao:"Serviço - " + cliente,
+  valor:Number(valor),
+  tipo:"entrada",
+  servicoId:servicoId,
+  data:new Date().toISOString().split("T")[0]
 })
 
 }
@@ -1520,17 +1522,22 @@ window.abrirComFiltro = function(tipo){
 
 }
   
-window.listarClientes = async function(){
+window.listarClientes = function(){
 
 let user = auth.currentUser
 
 let q = query(
-collection(db,"clientes"),
-where("uid","==",user.uid)
+  collection(db,"clientes"),
+  where("uid","==",user.uid)
 )
 
-let snap = await getDocs(q)
-  
+// remove listener antigo
+if(window.unsubscribeClientes){
+  window.unsubscribeClientes()
+}
+
+window.unsubscribeClientes = onSnapshot(q, (snap)=>{
+
 let html=""
 
 snap.forEach(docSnap=>{
@@ -1539,7 +1546,6 @@ let c = docSnap.data()
 let id = docSnap.id
 
 html += `
-
 <div style="border-bottom:1px solid #eee;padding:10px">
 
 <b onclick="abrirCliente('${c.nome}')">${c.nome}</b><br>
@@ -1563,12 +1569,13 @@ Excluir
 </button>
 
 </div>
-
 `
 
 })
 
 document.getElementById("listaClientes").innerHTML = html
+
+})
 
 }
 
@@ -1835,15 +1842,17 @@ collection(db,"servicos"),
 where("uid","==",user.uid)
 )
 
-// 🔥 remove listener antigo se existir
 if(window.unsubscribeServicos){
   window.unsubscribeServicos()
 }
 
-// 🔥 listener em tempo real
 window.unsubscribeServicos = onSnapshot(q, (snap)=>{
 
 let html=""
+
+let filtroStatus = document.getElementById("filtroStatus")?.value
+let filtroData = document.getElementById("filtroData")?.value
+let filtroCliente = document.getElementById("filtroCliente")?.value?.toLowerCase()
 
 let hoje = new Date().toISOString().split("T")[0]
 
@@ -1851,6 +1860,13 @@ snap.forEach(docSnap=>{
 
 let s = docSnap.data()
 let id = docSnap.id
+
+// 🔎 FILTROS
+if(filtroStatus && s.status !== filtroStatus) return
+
+if(filtroData && s.dataServico !== filtroData) return
+
+if(filtroCliente && !s.cliente?.toLowerCase().includes(filtroCliente)) return
 
 // 🔥 FILTRO DO DASHBOARD
 if(window.filtroDashboard){
