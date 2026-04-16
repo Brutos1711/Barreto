@@ -3,9 +3,12 @@ const CACHE_NAME = "barreto-app-v1"
 const urlsToCache = [
   "/",
   "/index.html",
-  "/icon.png"
+  "/manifest.json",
+  "/icon-192.png",
+  "/icon-512.png"
 ]
 
+// instalar
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -13,6 +16,12 @@ self.addEventListener("install", event => {
   )
 })
 
+// ativar
+self.addEventListener("activate", event => {
+  event.waitUntil(self.clients.claim())
+})
+
+// fetch (offline first)
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request)
