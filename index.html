@@ -9,8 +9,11 @@
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007aff">
-
 <link rel="apple-touch-icon" href="icon-192.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Barreto App"> 
   
 <title>Barreto App</title>
 
@@ -1794,17 +1797,17 @@ alert("Gasto atualizado")
 
 }
   
-window.salvarMeta = async function(){
+window.salvar = async function(){
 
 let user = auth.currentUser
-let valor = document.getElementById("inputMeta").value
+let valor = document.getElementById("input").value
 
-await addDoc(collection(db,"metas"),{
+await addDoc(collection(db,"s"),{
 uid:user.uid,
 valor:Number(valor)
 })
 
-alert("Meta salva")
+alert(" salva")
 
 carregarFinanceiro()
 
@@ -1832,27 +1835,68 @@ alert("Gasto salvo")
 carregarFinanceiro()
 
 }
+
+let existe = pagamentos.some(p => 
+  p.data === novoPagamento.data &&
+  p.valor === novoPagamento.valor
+)
+
+if(existe){
+  alert("Pagamento já lançado!")
+  return
+}
+  
+async function salvarPagamento(servicoId, novoPagamento){
+
+let ref = doc(db,"servicos",servicoId)
+let snap = await getDoc(ref)
+
+let dados = snap.data()
+
+let pagamentos = dados.pagamentos || []
+
+// 🚫 evita duplicado (mesma data + valor)
+let existe = pagamentos.some(p => 
+  p.data === novoPagamento.data &&
+  p.valor === novoPagamento.valor
+)
+
+if(existe){
+  alert("Pagamento já lançado!")
+  return
+}
+
+// adiciona
+pagamentos.push(novoPagamento)
+
+await updateDoc(ref,{
+  pagamentos: pagamentos,
+  statusPagamento: "Pago"
+})
+
+}
   
 window.listarTodosServicos = function(){
 
 let user = auth.currentUser
 
-let q = query(
-collection(db,"servicos"),
-where("uid","==",user.uid)
-)
-
-if(window.unsubscribeServicos){
-  window.unsubscribeServicos()
-}
-
-window.unsubscribeServicos = onSnapshot(q, (snap)=>{
-
-let html=""
-
 let filtroStatus = document.getElementById("filtroStatus")?.value
 let filtroData = document.getElementById("filtroData")?.value
 let filtroCliente = document.getElementById("filtroCliente")?.value?.toLowerCase()
+
+let filtros = [
+  where("uid","==",user.uid)
+]
+
+if(filtroStatus){
+  filtros.push(where("status","==",filtroStatus))
+}
+
+if(filtroData){
+  filtros.push(where("dataServico","==",filtroData))
+}
+
+let q = query(collection(db,"servicos"), ...filtros)
 
 let hoje = new Date().toISOString().split("T")[0]
 
@@ -1862,9 +1906,6 @@ let s = docSnap.data()
 let id = docSnap.id
 
 // 🔎 FILTROS
-if(filtroStatus && s.status !== filtroStatus) return
-
-if(filtroData && s.dataServico !== filtroData) return
 
 if(filtroCliente && !s.cliente?.toLowerCase().includes(filtroCliente)) return
 
