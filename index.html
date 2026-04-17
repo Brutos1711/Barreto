@@ -1855,12 +1855,6 @@ let dados = snap.data()
 
 let pagamentos = dados.pagamentos || []
 
-// 🚫 evita duplicado (mesma data + valor)
-let existe = pagamentos.some(p => 
-  p.data === novoPagamento.data &&
-  p.valor === novoPagamento.valor
-)
-
 if(existe){
   alert("Pagamento já lançado!")
   return
@@ -1900,13 +1894,28 @@ let q = query(collection(db,"servicos"), ...filtros)
 
 let hoje = new Date().toISOString().split("T")[0]
 
+document.getElementById("listaTodosServicos").innerHTML = `
+<div style="text-align:center;padding:20px">
+⏳ Carregando serviços...
+</div>
+`
+  
+// 🔥 REMOVE LISTENER ANTIGO
+if(window.unsubscribeServicos){
+  window.unsubscribeServicos()
+}
+
+// 🔥 AQUI ESTAVA O ERRO
+window.unsubscribeServicos = onSnapshot(q, (snap)=>{
+
+let html = ""
+
 snap.forEach(docSnap=>{
 
 let s = docSnap.data()
 let id = docSnap.id
 
-// 🔎 FILTROS
-
+// 🔎 FILTRO CLIENTE
 if(filtroCliente && !s.cliente?.toLowerCase().includes(filtroCliente)) return
 
 // 🔥 FILTRO DO DASHBOARD
@@ -1946,7 +1955,7 @@ ${s.descricao}<br>
 
 💰 Total: R$ ${s.valor}<br>
 
-📊 ${s.status}<br>
+📊 ${s.status || ""}<br>
 
 💳 ${s.statusPagamento}
 
@@ -1976,7 +1985,6 @@ document.getElementById("listaTodosServicos").innerHTML = html
 })
 
 }
-
 window.gerarOS = async function(servico){
 
 let user = auth.currentUser
