@@ -9,6 +9,9 @@
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007aff">
+
+<link rel="icon" href="icon-192.png">  
+  
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1835,6 +1838,15 @@ alert("Gasto salvo")
 carregarFinanceiro()
 
 }
+  
+async function salvarPagamento(servicoId, novoPagamento){
+
+let ref = doc(db,"servicos",servicoId)
+let snap = await getDoc(ref)
+
+let dados = snap.data()
+
+let pagamentos = dados.pagamentos || []
 
 let existe = pagamentos.some(p => 
   p.data === novoPagamento.data &&
@@ -1845,15 +1857,6 @@ if(existe){
   alert("Pagamento já lançado!")
   return
 }
-  
-async function salvarPagamento(servicoId, novoPagamento){
-
-let ref = doc(db,"servicos",servicoId)
-let snap = await getDoc(ref)
-
-let dados = snap.data()
-
-let pagamentos = dados.pagamentos || []
 
 if(existe){
   alert("Pagamento já lançado!")
